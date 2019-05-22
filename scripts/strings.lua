@@ -52,6 +52,9 @@ return {
 	ABILITY_REMOTECRITICAL_DESC = "Inflict a critical, not quite lethal wound.",
 	ABILITY_REMOTECRITICAL_DESC_KO = "Apply overwhelming pain, causing a temporary Knock-Out.",
 	
+	CONFIRM_REMOTECRITICAL = "Are you sure you want to hurt this agent?",
+	CONFIRM_REMOTECRITICAL_LASTAGENT = "This is your last active agent. Are you sure you want to hurt them?",
+
 	BADCELL = "Bad Cell",
 	TOOLTIP_BADCELL_EXPLO = "VOLATILE",
 	TOOLTIP_BADCELL_EXPLO_DESC = "This unit will explode on the enemy turn, rendering all guards on the same tile KO for that turn.",

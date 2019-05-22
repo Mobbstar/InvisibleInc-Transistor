@@ -42,6 +42,15 @@ local abilitytransistor =
 		return true 
 	end, 
 
+	confirmAbility = function( self, sim, ownerUnit, userUnit )
+		for i, unit in pairs( userUnit:getPlayerOwner():getUnits() ) do
+			if unit:hasAbility( "escape" ) and not unit:isKO() and unit ~= userUnit then
+				return string.format(STRINGS.TRANSISTOR.CONFIRM_REMOTECRITICAL, userUnit:getName())
+			end
+		end
+		return string.format(STRINGS.TRANSISTOR.CONFIRM_REMOTECRITICAL_LASTAGENT, userUnit:getName())
+	end,
+
 	executeAbility = function( self, sim, unit, userUnit )
 		local agent_id = userUnit._unitData.agentID	
 		local agents = include( "sim/unitdefs/agentdefs" )

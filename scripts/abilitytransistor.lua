@@ -108,6 +108,16 @@ local abilitytransistor =
 		return true 
 	end, 
 
+	confirmAbility = function( self, sim, ownerUnit, userUnit )
+		-- for i, unit in pairs( userUnit:getPlayerOwner():getUnits() ) do
+			-- if unit:hasAbility( "escape" ) and not unit:isKO() and unit ~= userUnit then
+				return STRINGS.TRANSISTOR.CONFIRM_REMOTECRITICAL
+			-- end
+		-- end
+		-- Red has a separate ability for doing this to herself, so in this ability, there will always be an agent (Red) still standing.
+		-- return STRINGS.TRANSISTOR.CONFIRM_REMOTECRITICAL_LASTAGENT
+	end,
+
 	executeAbility = function( self, sim, unit, userUnit, target )
 		local targetUnit = sim:getUnit(target)
 		
