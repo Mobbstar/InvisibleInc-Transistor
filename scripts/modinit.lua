@@ -225,7 +225,7 @@ local function init( modApi )
 		local armor = getArmor_old( self )
 		if self and not self:isPC() and ThisModLoaded
 		and self._sim and self._sim:getNPC():hasMainframeAbility("transistordaemonred") then
-			armor = math.ceil(armor * .5)
+			armor = math.floor(armor * .5)
 		end
 		return armor
 	end
@@ -234,7 +234,7 @@ local function init( modApi )
 		local mpMax = getMPMax_old( self )
 		if self and not self:isPC() and ThisModLoaded
 		and self._sim and self._sim:getNPC():hasMainframeAbility("transistordaemonred") then
-			mpMax = math.ceil(mpMax * .5)
+			mpMax = math.floor(mpMax * .5)
 		end
 		return mpMax
 	end
