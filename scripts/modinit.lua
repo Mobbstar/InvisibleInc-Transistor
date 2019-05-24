@@ -229,15 +229,15 @@ local function init( modApi )
 		end
 		return armor
 	end
-	local getMPMax_old = simunit.getMPMax
-	simunit.getMPMax = function( self )
-		local mpMax = getMPMax_old( self )
-		if self and not self:isPC() and ThisModLoaded
-		and self._sim and self._sim:getNPC():hasMainframeAbility("transistordaemonred") then
-			mpMax = math.floor(mpMax * .5)
-		end
-		return mpMax
-	end
+	--local getMPMax_old = simunit.getMPMax --mPmax handled in agentdaemons instead now
+	--simunit.getMPMax = function( self )
+		--local mpMax = getMPMax_old( self )
+		--if self and not self:isPC() and ThisModLoaded
+		--and self._sim and self._sim:getNPC():hasMainframeAbility("transistordaemonred") then
+		--	mpMax = math.floor(mpMax * .5)
+		--end
+		--return mpMax
+	--end
 	--end of Red
 end
 
