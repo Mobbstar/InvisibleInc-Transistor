@@ -149,7 +149,7 @@ return {
 		},
 		DRACO = {
 			NAME = "Read()",
-			DESC = "Killing/pinning guard at turn start reveals a large area. Bonus credits if everything already revealed.",
+			DESC = "Killing a human guard, or pinning him at turn start, reveals a large area. Bonus credits if everything already revealed.",
 			SHORT_DESC = "Killing/pinning reveals an area",
 			ACTIVE_DESC = "INTEL FROM DYING GUARDS",
 		},

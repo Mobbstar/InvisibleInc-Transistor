@@ -470,11 +470,17 @@ return
 						end
 					end 
 					sim:dispatchEvent( simdefs.EV_LOS_REFRESH, { player = sim:getPC(), cells = revealedcells } )
-					sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety_DLC001/Actions/scandrone_scan" )
+					-- sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety_DLC001/Actions/scandrone_scan" )
 					sim:dispatchEvent( simdefs.EV_SCANRING_VIS, {x = cellx, y = celly, range = range } ) -- the actual vfx is hidden in grenaderig
-					-- float text to tell why this happened?
-					-- sim:dispatchEvent( simdefs.EV_CAM_PAN, { cellx, celly } )
 					sim:dispatchEvent( simdefs.EV_CAM_PAN, { cellx, celly } ) --look I really like cam pan events
+					sim:dispatchEvent( simdefs.EV_UNIT_FLOAT_TXT, { --look I really like floaty texts -M
+						txt = STRINGS.TRANSISTOR.AGENTDAEMONS.DRACO.NAME,
+						alwaysShow = true,
+						skipQue = true,
+						sound = "SpySociety_DLC001/Actions/scandrone_scan",
+						x = cellx, y = celly,
+						color = {r = 255/255, g = 255/255, b = 255/255, a = 1 },
+					} )
 				elseif self.creditsBonus > 0 then
 					-- There's no area to be revealed, grant credits instead
 					-- log:write("YOU GET MONEY")
