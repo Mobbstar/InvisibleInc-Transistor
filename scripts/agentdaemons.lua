@@ -795,12 +795,11 @@ return
 		
 		onTrigger = function( self, sim, evType, evData, userUnit )
 			if evType == simdefs.TRG_UNIT_WARP and evData.unit then
-				local unit = evData.unit
-				if unit:isValid() and not unit:isPC() and unit:getTraits().mp
-				and unit:getTraits().mpMax and not unit:getTraits().transistor_debuff then
-					unit:getTraits().mp = unit:getTraits().mp - 4 --math.ceil(  )
-					unit:getTraits().mpMax = unit:getTraits().mpMax - 4
-					unit:getTraits().transistor_debuff = true
+				if evData.unit:isValid() and not evData.unit:isPC() and evData.unit:getTraits().mp
+				and evData.unit:getTraits().mpMax and not evData.unit:getTraits().transistor_debuff then
+					evData.unit:getTraits().mp = evData.unit:getTraits().mp - 4 --math.ceil(  )
+					evData.unit:getTraits().mpMax = evData.unit:getTraits().mpMax - 4
+					evData.unit:getTraits().transistor_debuff = true
 				end
 			end
 			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
