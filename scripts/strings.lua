@@ -174,9 +174,12 @@ return {
 		},
 		RED = {
 			NAME = "Crash()",
-			DESC = "Every guards' armor and movement range are reduced to half, rounding up.",
-			SHORT_DESC = "Halves all guard Armor and AP",
-			ACTIVE_DESC = "GUARD ARMOR AND AP HALVED",
+			-- DESC = "Every guards' armor and movement range are reduced to half, rounding up.",
+			-- SHORT_DESC = "Halves all guard Armor and AP",
+			-- ACTIVE_DESC = "GUARD ARMOR AND AP HALVED",
+			DESC = "Guard armor is halved, rounded down. Guards lose 4 AP.",
+			SHORT_DESC = "Guard armor halved, guards lose 4 AP",
+			ACTIVE_DESC = "GUARD ARMOR HALVED, -4 AP",
 		},
 		NUMI = { --TODO
 			NAME = "Invalid()",

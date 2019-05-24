@@ -767,24 +767,44 @@ return
 		title = STRINGS.TRANSISTOR.RED.NAME,
 		noDaemonReversal = true,
 		
-		--armor/maxMP handled in modinit.lua / init()
+		--armor handled in modinit.lua / init()
 		
 		onSpawnAbility = function( self, sim, player, agent )
+			sim:addTrigger( simdefs.TRG_UNIT_WARP, self )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
 			
+			self.mpAffected = {}
 			sim:forEachUnit(function(unit)
-				if unit and unit:isValid() and not unit:isPC() and unit:getTraits().mp then
-					unit:getTraits().mp = unit:getTraits().mp * .5 --math.ceil(  )
+				if unit and unit:isValid() and not unit:isPC() and unit:getTraits().mp and unit:getTraits().mpMax then
+					unit:getTraits().mp = unit:getTraits().mp - 4
+					unit:getTraits().mpMax = unit:getTraits().mpMax - 4
+					self.mpAffected[unit] = true
 				end
 			end)
 		end,
 		
 		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_UNIT_WARP, self )
 			sim:forEachUnit(function(unit)
-				if unit and unit:isValid() and not unit:isPC() and unit:getTraits().mp then
-					unit:getTraits().mp = unit:getTraits().mp * 2
+				if unit and unit:isValid() and self.mpAffected[unit] and unit:getTraits().mp and unit:getTraits().mpMax then
+					unit:getTraits().mp = unit:getTraits().mp + 4
+					unit:getTraits().mpMax = unit:getTraits().mpMax + 4
 				end
 			end)
+			self.mpAffected = nil
+		end,
+		
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			if evType == simdefs.TRG_UNIT_WARP then
+				if evData.unit and evData.unit:isValid()
+				and not self.mpAffected[evData.unit] and not evData.unit:isPC()
+				and evData.unit:getTraits().mp and evData.unit:getTraits().mpMax then
+					evData.unit:getTraits().mp = evData.unit:getTraits().mp - 4
+					evData.unit:getTraits().mpMax = evData.unit:getTraits().mpMax - 4
+					self.mpAffected[evData.unit] = true
+				end
+			end
+			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
 		end,
 	},
 	
