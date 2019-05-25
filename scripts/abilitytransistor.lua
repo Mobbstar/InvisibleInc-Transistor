@@ -41,6 +41,14 @@ local _agentdaemons = {
 	mod_04_n_umi = "numi", --N-UMI
 } 
 
+local function removeAlgorithm(self, sim, unit)
+	abilityID = _agentdaemons[unit:getUnitData().agentID or 0] or "generic"
+	--disable the daemon again (fails if none of this type are left)
+	sim:getNPC():removeAbility( sim, "transistordaemon".. abilityID )
+	self.downedagents[unit] = nil
+	if unit:isValid() and unit:getTraits().transistorKO then unit:getTraits().transistorKO = nil end
+end
+
 local abilitytransistor =
 {
 	--ability to kill fellow agents (for the algorithm stuff, go farther down)
@@ -192,6 +200,10 @@ local abilitytransistor =
 		-- sim:removeTrigger( simdefs.TRG_UNIT_KILLED, self ) -- PERMADEATH
 		self.abilityOwner = nil
 		self._possibleDaemons = nil
+		--if red leaves, remove all Transistor effects
+		for unit, _ in pairs(self.downedagents) do
+			removeAlgorithm(self, sim, unit)
+		end
 	end,
 	
 	onTrigger = function( self, sim, evType, evData )
@@ -259,6 +271,11 @@ local abilitytransistor =
 		or evType == simdefs.TRG_UNIT_ESCAPED then
 			self:recalcPossibleDaemons( sim )
 			
+			if evType == simdefs.TRG_UNIT_ESCAPED and evData
+			and self.downedagent and self.downedagents[evData] then
+				removeAlgorithm(self, sim, evData)
+			end
+			
 		elseif evType == simdefs.TRG_UNIT_KO then
 			--apparently this includes agent "deaths" á là "critical condition"
 			--the agent gets KO'd and flagged "critical", but not properly replaced with a corpse
@@ -266,27 +283,23 @@ local abilitytransistor =
 			if evData.unit and evData.unit:isPC() then
 				--check for agent daemon
 				-- log:write("JUST KILLED..."..evData.unit:getUnitData().agentID)
-				local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0] or "generic"
-				-- if abilityID then
-					if self.downedagents[evData.unit] then
-						if evData.ticks == nil and not evData.unit:isDead() then --waking up...
-							--disable the daemon again (fails if none of this type are left)
-							sim:getNPC():removeAbility( sim, "transistordaemon".. abilityID )	
-							self.downedagents[evData.unit] = nil
-							if evData.unit:getTraits().transistorKO then evData.unit:getTraits().transistorKO = nil end
-						end
-					elseif (simdefs.transistor_on_ko or evData.unit:isDead()) then --don't care about the ticks, dead is dead
-						
-						-- special FX - Hek
-						evData.unit._sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/EMP_explo" )				
-						local x0, y0 = evData.unit:getLocation()	
-						sim:dispatchEvent( simdefs.EV_SCANRING_VIS, { x= x0,y= y0, range=3 } )
-						--install daemon
-						sim:getNPC():addMainframeAbility(sim, "transistordaemon".. abilityID, evData.unit, 0 )
-						self.downedagents[evData.unit] = true
-						
+				if self.downedagents[evData.unit] then
+					if evData.ticks == nil and not evData.unit:isDead() then --waking up...
+						removeAlgorithm(self, sim, evData.unit)
 					end
-				-- end
+				elseif not self.downedagents[evData.unit]
+				and (simdefs.transistor_on_ko or evData.unit:isDead()) then --don't care about the ticks, dead is dead
+					
+					-- special FX - Hek
+					evData.unit._sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/EMP_explo" )
+					local x0, y0 = evData.unit:getLocation()
+					sim:dispatchEvent( simdefs.EV_SCANRING_VIS, { x= x0,y= y0, range=3 } )
+					--install daemon
+					local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0] or "generic"
+					sim:getNPC():addMainframeAbility(sim, "transistordaemon".. abilityID, evData.unit, 0 )
+					self.downedagents[evData.unit] = true
+					
+				end
 			end
 			
 		--PERMADEATH--
@@ -308,13 +321,15 @@ local abilitytransistor =
 				local x0, y0 = evData.corpse:getLocation()
 				sim:dispatchEvent( simdefs.EV_OVERLOAD_VIZ, {x = x0, y = y0, units = nil, range = 7 } )
 				
-				if agentdaemon == "transistordaemonred" then --to make death as severe as the user apparently desires if this is reached in the first place, do not install most algorithms just yet. -M
+				-- if agentdaemon == "transistordaemonred" then --to make death as severe as the user apparently desires: if this is reached in the first place, do not install algorithms just yet. -M
+				if evData.unit == self.abilityOwner then --the only exception is Red, because her death means there won't be algorithms in any mission afterwards.
+					self:onDespawnAbility(self, sim, self.abilityOwner)
 					sim:getNPC():addMainframeAbility(sim, agentdaemon, nil, 0 )
+				else
+					-- despawns active algorithm if the agent bled out
+					self.downedagents = self.downedagents or {} --this might be a bit redundant
+					removeAlgorithm(self, sim, evData.unit)
 				end
-				-- despawns active algorithm if the agent bled out
-				self.downedagents = self.downedagents or {} --this might be a bit redundant	
-				self.downedagents[evData.unit] = nil	
-				sim:getNPC():removeAbility( sim, "transistordaemon".. abilityID )
 			end
 		end
 		-- /PERMADEATH --xoxo, Hek	
