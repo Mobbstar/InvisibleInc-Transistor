@@ -52,9 +52,6 @@ local abilitytransistor =
 	end,
 
 	executeAbility = function( self, sim, unit, userUnit )
-		local agent_id = userUnit._unitData.agentID	
-		local agents = include( "sim/unitdefs/agentdefs" )
-		local mortalitychanged = nil
 		
 		--if easy mode is enabled, just KO them and skip all the permadeath stuff
 		if simdefs.transistor_on_ko then
@@ -63,16 +60,26 @@ local abilitytransistor =
 			return
 		end
 		
+		local agent_id = userUnit._unitData.agentID	
+		local agents = include( "sim/unitdefs/agentdefs" )
+		local mortalitychanged = nil
+		
 		-- this block is here for the purposes of the Permadeath mod. If permadeath is on, the agent will briefly become critical-able for the Transistor attack, then reset afterwards (so they'll still be killable by guards as usual) - Hek
 		
-		for k,v in pairs(agents) do
-			if v.agentID and (v.agentID == agent_id) and (v.traits.canBeCritical == false) then
-				userUnit:getTraits().canBeCritical = true
-				mortalitychanged = true
-				-- log:write("LOG: changed traits")
-			end
-		end
+		-- for k,v in pairs(agents) do
+			-- if v.agentID and (v.agentID == agent_id) and (v.traits.canBeCritical == false) then
+				-- userUnit:getTraits().canBeCritical = true
+				-- mortalitychanged = true
+				-- -- log:write("LOG: changed traits")
+			-- end
+		-- end
+		-- this stuff is pointless with the current Permadeath build - Hek
 	
+		userUnit:getTraits().transistorKO = true
+		if userUnit:getTraits().canBeCritical == false then 
+			userUnit:getTraits().canBeCritical = true 
+			mortalitychanged = true 
+		end
 		userUnit:onDamage(1)
 		userUnit:useAP(sim)
 		

@@ -46,7 +46,6 @@ local function removeAlgorithm(self, sim, unit)
 	--disable the daemon again (fails if none of this type are left)
 	sim:getNPC():removeAbility( sim, "transistordaemon".. abilityID )
 	self.downedagents[unit] = nil
-	if unit:isValid() and unit:getTraits().transistorKO then unit:getTraits().transistorKO = nil end
 end
 
 local abilitytransistor =
@@ -286,6 +285,7 @@ local abilitytransistor =
 				if self.downedagents[evData.unit] then
 					if evData.ticks == nil and not evData.unit:isDead() then --waking up...
 						removeAlgorithm(self, sim, evData.unit)
+						if evData.unit:getTraits().transistorKO then evData.unit:getTraits().transistorKO = nil end
 					end
 				elseif not self.downedagents[evData.unit]
 				and (simdefs.transistor_on_ko or evData.unit:isDead()) then --don't care about the ticks, dead is dead
