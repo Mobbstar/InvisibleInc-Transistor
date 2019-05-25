@@ -193,6 +193,22 @@ return {
 			PSI_CONTROL_TIP = "This enemy unit is under psi control. Hostile actions taken by this unit will cause a drastic alarm increase.",
 			CANNOT_OVERWATCH = "PSI-CONTROLLED UNITS CANNNOT OVERWATCH",
 		},
+		
+		-- MIST_KIA = { -- unused
+			-- NAME = "Transpose()",
+			-- DESC = "Psi-hijack the next human guard to overwatch an agent",
+			-- SHORT_DESC = "Mind control a guard",
+			-- ACTIVE_DESC = "MIND CONTROL A GUARD",
+			-- PSI_CONTROL = "PSI CONTROL",
+			-- PSI_CONTROL_TIP = "This enemy unit is under psi control. Hostile actions taken by this unit will cause a drastic alarm increase.",
+			-- CANNOT_OVERWATCH = "PSI-CONTROLLED UNITS CANNNOT OVERWATCH",			
+		-- },		
+		MIST_KIA = {
+			NAME = "Transpose()",
+			DESC = "KO'd guards are not alerted when they wake up",
+			SHORT_DESC = "Awakening guards are not alerted",
+			ACTIVE_DESC = "KO'D GUARDS ARE CALMED",			
+		},		
 		GHUFF = { 
 			NAME = "Sleuth()",
 			DESC = "Observing guards permanently tags them.",
