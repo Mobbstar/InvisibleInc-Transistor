@@ -821,7 +821,7 @@ return
 	-- Generating interest points on agent location gives AP per agent per turn
 	transistordaemoncarmen = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.CARMEN ) )
 	{
-		icon = "gui/icons/daemon_icons/fu_punch.png",--needs icon
+		icon = "gui/icons/daemon_icons/fu_abscond.png",--needs icon
 		title = STRINGS.CARMEN.AGENTS.CARMEN.NAME or "Carmen",
 		noDaemonReversal = true,
 		APbonus = 4,
@@ -900,7 +900,7 @@ return
 	-- Observing guards tags them
 	transistordaemonghuff= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.GHUFF ) )
 	{
-		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		icon = "gui/icons/daemon_icons/fu_sleuth.png", --update
 		title = STRINGS.AMRE.AGENTS.GHUFF.NAME or "Ghuff",
 		noDaemonReversal = true,
 		
@@ -915,7 +915,7 @@ return
 	-- More AP for hacked drones, control drones for longer
 	transistordaemonnumi= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.NUMI ) )
 	{
-		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		icon = "gui/icons/daemon_icons/fu_tuning.png", --update
 		title = STRINGS.AMRE.AGENTS.NU.NAME or "N-Umi",
 		noDaemonReversal = true,
 		MPbonus = 5,
@@ -959,7 +959,7 @@ return
 	-- need to think of a permadeath version of this...
 	transistordaemonmist = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST ) )
 	{
-		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		icon = "gui/icons/daemon_icons/fu_transpose.png", --update
 		title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
 		noDaemonReversal = true,
 		trackerCount = 5,
@@ -1051,11 +1051,132 @@ return
 		end
 	},
 	
+	--Mist from Agent Mod Combo
+	-- Permadeath version: First guard to overwatch an agent gets mind controlled -- UNUSED
+	-- transistordaemonmistkia = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST_KIA ) )
+	-- {
+		-- icon = "gui/icons/daemon_icons/fu_transpose.png", --update
+		-- title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
+		-- noDaemonReversal = true,
+		-- trackerCount = 5,
+		
+		-- onSpawnAbility = function( self, sim, player, agent )
+			-- sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			-- sim:addTrigger( simdefs.TRG_START_TURN, self )
+			-- sim:addTrigger( simdefs.TRG_UNIT_KILLED, self )
+			-- sim:addTrigger( simdefs.TRG_UNIT_HIT, self )
+			-- sim:addTrigger( simdefs.TRG_UNIT_NEWTARGET, self )
+			
+		-- end,
+		
+		-- onDespawnAbility = function( self, sim )
+			-- sim:removeTrigger( simdefs.TRG_START_TURN, self )
+			-- sim:removeTrigger( simdefs.TRG_UNIT_KILLED, self )
+			-- sim:removeTrigger( simdefs.TRG_UNIT_HIT, self )
+			-- sim:removeTrigger( simdefs.TRG_UNIT_NEWTARGET, self )
+			
+			-- if self.capturedGuard then  --un-hijack guard!
+				-- self.capturedGuard:setPlayerOwner( sim:getNPC() )
+				-- self.capturedGuard:getTraits().psiTakenGuard = nil
+				-- self.capturedGuard:getTraits().canBeFriendlyShot = nil
+				-- self.capturedGuard:getTraits().takenDrone = nil
+				-- self.capturedGuard:getTraits().LOSarc = self.oldLOS
+				-- self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
+				-- self.capturedGuard:setKO( sim, 3 ) -- nap time
+				-- sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = self.capturedGuard  } ) --swooshy special FX
+			-- end
+		-- end,
+		
+		-- onTrigger = function( self, sim, evType, evData, userUnit )
+			-- if evType == simdefs.TRG_UNIT_NEWTARGET then
+				-- if evData.unit and not evData.unit:isPC() and not evData.unit:hasTrait("pacifist")
+				-- and evData.target and evData.target:isPC() and not evData.target:hasTrait("takenDrone") and (self.capturedGuard == nil) then
+					-- self.capturedGuard = evData.unit
+					-- local x1, y1 = evData.unit:getLocation()
+					-- local cellUnit = evData.unit
+				
+					-- cellUnit:setPlayerOwner( sim:getPC() )
+					-- cellUnit:getTraits().takenDrone = true --so other guards won't shoot
+					-- cellUnit:getTraits().psiTakenGuard = true --custom tag just in case
+					-- cellUnit:getTraits().canBeFriendlyShot = true --to enable betrayal behaviour
+					-- cellUnit:getTraits().sneaking = true
+					-- cellUnit:getTraits().thoughtVis = nil
+					
+					-- sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
+					-- self.capturedGuard = cellUnit
+					-- self.oldLOS = cellUnit:getTraits().LOSarc
+					-- self.oldLOSperiph = cellUnit:getTraits().LOSperipheralArc
+					-- cellUnit:getTraits().LOSarc = math.pi * 2
+					-- cellUnit:getTraits().LOSperipheralArc = nil
+					
+					-- -- fancy FX stuff because I'm weak
+					-- sim:dispatchEvent( simdefs.EV_CAM_PAN, { self.MistBody:getLocation() } )
+					-- sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
+					-- sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = cellUnit  } )
+					-- sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
+						-- unit = cellUnit,
+						-- txt = util.sformat(STRINGS.TRANSISTOR.AGENTDAEMONS.MIST.PSI_CONTROL),
+						-- x = x1, y = y1,
+						-- color = {r = 255/255, g = 255/255, b = 51/255, a = 1 },
+					-- } )
+				-- end
+					
+			-- elseif evType == simdefs.TRG_START_TURN then
+				-- if ( sim:getCurrentPlayer() == sim:getPC() ) and (self.capturedGuard ~= nil) then
+				-- self.capturedGuard:getTraits().sneaking = true --is otherwise reset every turn apparently
+				-- end
+				
+			-- elseif evType == simdefs.TRG_UNIT_KILLED then -- for if the possessed guard dies
+				-- if self.capturedGuard and evData.unit == self.capturedGuard then
+					-- self.capturedGuard = nil
+				-- end
+				
+			-- elseif evType == simdefs.TRG_UNIT_HIT then
+				-- if self.capturedGuard and evData.sourceUnit and evData.targetUnit then
+					-- if evData.sourceUnit == self.capturedGuard and evData.targetUnit:getTraits().isGuard or evData.targetUnit:getTraits().isDrone then
+						-- sim:trackerAdvance( self.trackerCount )
+						-- -- should be punishing enough, as getting away with guard-on-guard murder is pretty easy
+					-- end
+				-- end
+				
+			-- end
+			-- mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+		-- end
+	-- },	
+	
+	-- MIST permadeath version
+	-- KO'd guards are not alerted when they wake up
+	transistordaemonmistkia = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST_KIA ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_transpose.png",
+		title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
+		noDaemonReversal = true,
+		
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_UNIT_KO, self )
+			
+		end,
+		
+		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
+		end,
+		
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			if evType == simdefs.TRG_UNIT_KO then
+				if evData.unit and not evData.unit:isPC() and evData.ticks == nil and not evData.unit:getTraits().isDrone then
+					evData.unit:getTraits().alerted = nil
+				end
+			end
+			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+		end
+	},		
+	
 	--Pedler from Agent Mod Combo
 	--Agents resist KO, +1 KO damage in melee per enemy armour (but at least 1)
 	transistordaemonpedler= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.PEDLER ) )
 	{
-		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		icon = "gui/icons/daemon_icons/fu_brawl.png",
 		title = STRINGS.AMRE.AGENTS.KPC.NAME or "Pedler",
 		noDaemonReversal = true,
 		
