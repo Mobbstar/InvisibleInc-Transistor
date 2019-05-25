@@ -222,8 +222,8 @@ local abilitytransistor =
 			if evData:isPC() and sim:getTurnCount() <= 0 then
 			-- log:write("LOG: permadeath turn count started")
 				local agency = sim:getParams().agency
-				log:write("LOG: agency transistorkia")
-				log:write(util.stringize(agency.transistorkia,2))
+				--log:write("LOG: agency transistorkia")
+				--log:write(util.stringize(agency.transistorkia,2))
 				if agency.transistorkia then
 					local KIApool = agency.transistorkia
 
@@ -311,7 +311,12 @@ local abilitytransistor =
 					sim.transistordeath = {}
 				end
 					
-				local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0] or "generickia"
+				local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0]
+					if abilityID == "generic" then
+						abilityID = "generickia"
+					elseif abilityID == "mist" then
+						abilityID = "mistkia"
+					end
 				local agentdaemon = ("transistordaemon".. abilityID)	
 				table.insert(sim.transistordeath, agentdaemon)
 				-- log:write(util.stringize(agentdaemon,2))
