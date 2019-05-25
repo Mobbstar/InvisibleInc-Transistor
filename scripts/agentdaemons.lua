@@ -815,6 +815,281 @@ return
 		end,
 	},
 	
+	-- Mod agents, generic algorithms
+	
+	--CARMEN
+	-- Generating interest points on agent location gives AP per agent per turn
+	transistordaemoncarmen = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.CARMEN ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_punch.png",--needs icon
+		title = STRINGS.CARMEN.AGENTS.CARMEN.NAME or "Carmen",
+		noDaemonReversal = true,
+		APbonus = 4,
+		
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_NEW_INTEREST, self )
+			sim:addTrigger( simdefs.TRG_UNIT_NEWINTEREST, self )
+			sim:addTrigger( simdefs.TRG_START_TURN, self )
+		end,
+		
+		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_NEW_INTEREST, self )
+			sim:removeTrigger( simdefs.TRG_UNIT_NEWINTEREST, self )
+			sim:removeTrigger( simdefs.TRG_START_TURN, self )
+		end,
+		
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			if (evType == simdefs.TRG_NEW_INTEREST) or (evType == simdefs.TRG_UNIT_NEWINTEREST) then
+				-- log:write("LOG new interest")
+				-- log:write(util.stringize(evData,2))				
+				local targets = {} --table in case more than one target on cell (KO'd agents)
+				
+				if evData.target then 
+					table.insert(targets, evData.target )
+				elseif evData.interest and evData.interest.x and evData.interest.y then
+					local cell = sim:getCell( evData.interest.x, evData.interest.y )
+						for i, cellUnit in ipairs(cell.units) do
+							if cellUnit:isValid() and ( cellUnit:getPlayerOwner() == sim:getPC() ) and cellUnit:getTraits().mp and not cellUnit:getTraits().isDrone then
+								table.insert(targets, cellUnit)
+							end
+						end
+				end
+				
+				if #targets > 0 then
+					for i, target in pairs(targets) do				
+						if sim:getCurrentPlayer() == sim:getPC() then
+							if (not target:getTraits().transistorcarmenturn or target:getTraits().transistorcarmenturn < sim:getTurnCount() ) then
+								target:getTraits().transistorcarmenturn = sim:getTurnCount()
+								target:getTraits().mp = target:getTraits().mp + self.APbonus
+								local x1, y1 = target:getLocation()
+								sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
+								unit = target,
+								txt = util.sformat(STRINGS.TRANSISTOR.AGENTDAEMONS.CARMEN.NAME),
+								x = x1, y = y1,
+								color = {r = 255/255, g = 255/255, b = 51/255, a = 1 }
+						} )
+							end
+						else --if interest points spawns on enemy turn
+							target:getTraits().transistorcarmenbonus = true
+						end
+					end
+				end	
+				
+			elseif evType == simdefs.TRG_START_TURN then
+				-- log:write("LOG abscond start turn")
+				for i, unit in pairs( sim:getPC():getUnits() ) do
+					if unit:isValid() and unit:getTraits().transistorcarmenbonus then
+						unit:getTraits().mp = unit:getTraits().mp + self.APbonus
+						unit:getTraits().transistorcarmenbonus = nil
+						unit:getTraits().transistorcarmenturn = sim:getTurnCount()
+						local x1, y1 = unit:getLocation()
+						sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
+						unit = unit,
+						txt = util.sformat(STRINGS.TRANSISTOR.AGENTDAEMONS.CARMEN.NAME),
+						x = x1, y = y1,
+						color = {r = 255/255, g = 255/255, b = 51/255, a = 1 }} )
+					end
+				end
+			end
+			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+		end,
+	},
+	
+	--Ghuff from Agent Mod Combo
+	-- Observing guards tags them
+	transistordaemonghuff= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.GHUFF ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		title = STRINGS.AMRE.AGENTS.GHUFF.NAME or "Ghuff",
+		noDaemonReversal = true,
+		
+		--everything handled in modinit.lua / init()
+		
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+		end,
+	},
+	
+	--N-Umi from Agent Mod Combo
+	-- More AP for hacked drones, control drones for longer
+	transistordaemonnumi= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.NUMI ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		title = STRINGS.AMRE.AGENTS.NU.NAME or "N-Umi",
+		noDaemonReversal = true,
+		MPbonus = 5,
+		LeashBonus = 3,
+		
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_START_TURN, self )
+			sim:addTrigger( simdefs.TRG_ICE_BROKEN, self )
+			sim:getPC():getTraits().controlTicks = (sim:getPC():getTraits().controlTicks or 0) + self.LeashBonus
+			
+		end,
+		
+		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_START_TURN, self )
+			sim:removeTrigger( simdefs.TRG_ICE_BROKEN, self )
+			if sim:isVersion("0.17.5") then	
+            	sim:getPC():getTraits().controlTicks = (sim:getPC():getTraits().controlTicks or 0) - self.LeashBonus --this doesn't affect already hacked drones but that's ok
+        	end
+		end,
+		
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			if (evType == simdefs.TRG_START_TURN) and (sim:getCurrentPlayer() == sim:getPC()) then
+				sim:forEachUnit(function(u)
+					if u:hasTrait("isDrone") and (u:getPlayerOwner() == sim:getPC() ) and u:hasTrait("mp") then
+						u:addMP(self.MPbonus)
+					end
+				end)
+			elseif evType == simdefs.TRG_ICE_BROKEN then --for drones hacked on same turn as daemon proccs -- currently doesn't work, more digging
+				if evData.unit and evData.unit:getTraits().isDrone and evData.unit:getTraits().takenDrone and evData.unit:getTraits().mp then
+					evData.unit:addMP(self.MPbonus)
+				end
+			end
+			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+		end
+	},
+
+	--Mist from Agent Mod Combo
+	-- Mist's body being pinned by guard causes her to possess that guard, seizing control until he dies or she wakes up. If guard dies, she is free to possess the next schmuck
+	-- overwatch is disabled for hijacked guard because the animation bugs out, handled in modinit
+	-- need to think of a permadeath version of this...
+	transistordaemonmist = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
+		noDaemonReversal = true,
+		trackerCount = 5,
+		
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_START_TURN, self )
+			sim:addTrigger( simdefs.TRG_UNIT_KILLED, self )
+			sim:addTrigger( simdefs.TRG_UNIT_HIT, self )
+			self.MistBody = agent
+			
+		end,
+		
+		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_START_TURN, self )
+			sim:removeTrigger( simdefs.TRG_UNIT_KILLED, self )
+			sim:removeTrigger( simdefs.TRG_UNIT_HIT, self )
+			self.MistBody = nil
+			
+			if self.capturedGuard then  --un-hijack guard!
+				self.capturedGuard:setPlayerOwner( sim:getNPC() )
+				self.capturedGuard:getTraits().psiTakenGuard = nil
+				self.capturedGuard:getTraits().canBeFriendlyShot = nil
+				self.capturedGuard:getTraits().takenDrone = nil
+				self.capturedGuard:getTraits().LOSarc = self.oldLOS
+				self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
+				self.capturedGuard:setKO( sim, 3 ) -- nap time
+				sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = self.capturedGuard  } ) --swooshy stuff
+				-- special FX needed
+			end
+		end,
+		
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			local mist_cell = sim:getCell( self.MistBody:getLocation() )
+			local x1, y1 = self.MistBody:getLocation()
+			if (evType == simdefs.TRG_START_TURN) and ( sim:getCurrentPlayer() == sim:getPC() ) then
+
+				if ( self.capturedGuard == nil ) then
+				
+					for i, cellUnit in ipairs(mist_cell.units) do
+						if cellUnit:getTraits().isGuard and ( cellUnit:getPlayerOwner() == sim:getNPC() ) and not cellUnit:getTraits().isDrone and not cellUnit:isKO() then
+							cellUnit:setPlayerOwner( sim:getPC() )
+							cellUnit:getTraits().takenDrone = true --so other guards won't shoot
+							cellUnit:getTraits().psiTakenGuard = true --custom tag
+							cellUnit:getTraits().canBeFriendlyShot = true --to enable betrayal behaviour
+							cellUnit:getTraits().sneaking = true
+							cellUnit:getTraits().thoughtVis = nil
+							
+							sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
+							self.capturedGuard = cellUnit
+							self.oldLOS = cellUnit:getTraits().LOSarc
+							self.oldLOSperiph = cellUnit:getTraits().LOSperipheralArc
+							cellUnit:getTraits().LOSarc = math.pi * 2
+							cellUnit:getTraits().LOSperipheralArc = nil
+							
+							-- fancy FX stuff because I'm weak
+							sim:dispatchEvent( simdefs.EV_CAM_PAN, { self.MistBody:getLocation() } )
+							sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
+							sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = cellUnit  } )
+							sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
+								unit = cellUnit,
+								txt = util.sformat(STRINGS.TRANSISTOR.AGENTDAEMONS.MIST.PSI_CONTROL),
+								x = x1, y = y1,
+								color = {r = 255/255, g = 255/255, b = 51/255, a = 1 },
+							} )
+
+							break
+						end
+					end
+				else
+					self.capturedGuard:getTraits().sneaking = true --is otherwise reset back to false every turn apparently
+				end
+				
+			elseif evType == simdefs.TRG_UNIT_KILLED then -- for if the possessed guard dies
+				if self.capturedGuard and evData.unit == self.capturedGuard then
+					self.capturedGuard = nil
+				end
+				
+			elseif evType == simdefs.TRG_UNIT_HIT then
+				if self.capturedGuard and evData.sourceUnit and evData.targetUnit then
+					if evData.sourceUnit == self.capturedGuard and evData.targetUnit:getTraits().isGuard or evData.targetUnit:getTraits().isDrone then
+						sim:trackerAdvance( self.trackerCount )
+						-- should be punishing enough, as getting away with guard-on-guard murder is pretty easy
+					end
+				end
+				
+			end
+			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+		end
+	},
+	
+	--Pedler from Agent Mod Combo
+	--Agents resist KO, +1 KO damage in melee per enemy armour (but at least 1)
+	transistordaemonpedler= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.PEDLER ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_coup.png", --update
+		title = STRINGS.AMRE.AGENTS.KPC.NAME or "Pedler",
+		noDaemonReversal = true,
+		
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_UNIT_KO, self )
+			
+		end,
+		-- melee KO damage handled in modinit alongside Sharp's stuff
+		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
+		end,
+		
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			if evType == simdefs.TRG_UNIT_KO  then
+				if evData.unit and evData.unit:isPC() and not evData.unit:getTraits().isDrone and not evData.unit:isDead() and evData.ticks then
+					evData.ticks = nil
+					evData.unit:getTraits().koTimer = 0
+					evData.unit:setKO( sim, nil )
+					sim:processReactions( evData.unit )
+					-- sim:dispatchEvent( simdefs.EV_UNIT_KO, {unit = evData.unit, stand = true } )
+					evData.unit:getTraits().mp = evData.unit:getTraits().mp + 5
+					sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = evData.unit } )
+								
+				end			
+			end
+			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+		end
+	},
+	
+	-- Conway?
+	
+	---
+	
 	--GENERIC
 	-- for all mod agents who have no unique algorithm
 	-- spawn a bad cell every turn
