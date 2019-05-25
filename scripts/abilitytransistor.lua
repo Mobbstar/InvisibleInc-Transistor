@@ -34,7 +34,12 @@ local _agentdaemons = {
 	[1002] = "rush", --RUSH
 	[1003] = "draco", --DRACO
 	transistor_red = "red", --RED
-}
+	carmen_sandiego_o  = "carmen", --CARMEN
+	mod_01_pedler = "pedler", --PEDLER
+	mod_02_mist = "mist", --MIST
+	mod_03_ghuff = "ghuff", --GHUFF
+	mod_04_n_umi = "numi", --N-UMI
+} 
 
 local abilitytransistor =
 {
