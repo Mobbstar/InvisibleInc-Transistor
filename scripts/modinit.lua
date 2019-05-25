@@ -53,28 +53,6 @@ local function init( modApi )
 		-- useItem_old( sim, unit, item, ...)
 	-- end
 	
-	--Sharp
-	local calculateDamageAndArmorForMelee_old = simquery.calculateDamageAndArmorForMelee
-	simquery.calculateDamageAndArmorForMelee = function( sim, sourceUnit, targetUnit )
-		local dmg, armorPiercing, armor = calculateDamageAndArmorForMelee_old( sim, sourceUnit, targetUnit )
-		if not ThisModLoaded or not sourceUnit then
-			return dmg, armorPiercing, armor
-		end
-		local i = 0
-		local unitOwner = sourceUnit:getUnitOwner()
-		if unitOwner and unitOwner:isPC() then
-			for _, ability in ipairs( sim:getNPC():getAbilities() ) do 
-				if ability:getID() == "transistordaemonsharp" then
-					i = i + 1
-				end
-			end
-			i = i * unitOwner:getAugmentCount()
-		end
-		
-		-- log:write("MELEE FOR ".. (targetUnit and targetUnit:getUnitData().name or "UNKNOWN") .." is ".. i .."/".. armor)
-		return dmg, armorPiercing + i, armor
-	end
-	--end of Sharp
 	--Prism 1
 	-- local aihandler_handleNode_old = astar_handlers.aihandler._handleNode
 	-- astar_handlers.aihandler._handleNode = function(self, to_cell, from_node, goal_cell)
@@ -239,6 +217,45 @@ local function init( modApi )
 		-- return mpMax
 	-- end
 	--end of Red
+			
+	--Ghuff
+	local observePath_executeAbility_old = abilitydefs._abilities.observePath.executeAbility
+	abilitydefs._abilities.observePath.executeAbility = function( self, sim, unit, userUnit, target, ... )
+		local targetUnit = sim:getUnit( target )
+		if ThisModLoaded and sim:getNPC():hasMainframeAbility("transistordaemonghuff") then
+			targetUnit:setTagged()
+			sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_wisp_activate" )
+			sim:dispatchEvent( simdefs.EV_UNIT_TAGGED, {unit = targetUnit} )
+		end
+		return observePath_executeAbility_old( self, sim, unit, userUnit, target, ... )	
+	end
+
+	--Mist
+	--disable overwatch ability for hijacked guards
+	local overwatch_canUseAbility_old = abilitydefs._abilities.overwatch.canUseAbility
+	abilitydefs._abilities.overwatch.canUseAbility = function( self, sim, unit, ... )
+		local canUse = overwatch_canUseAbility_old( self, sim, unit, ... )
+		if ThisModLoaded and sim:getNPC():hasMainframeAbility( "transistordaemonmist" ) then
+			if unit and unit:getTraits().psiTakenGuard then
+				return false, STRINGS.TRANSISTOR.AGENTDAEMONS.MIST.CANNOT_OVERWATCH
+			end
+		end
+		return canUse
+	end
+	
+	--hijacked guards still try to use this function, which causes an assertion error because it's not 'meant' to be used by PC units
+	local simquery_canSoftPath_old = simquery.canSoftPath
+	simquery.canSoftPath = function( sim, unit, startcell, endcell, ... )
+		if not ThisModLoaded then
+			return simquery_canSoftPath_old( sim, unit, startcell, endcell, ... )
+		else
+			if unit:getTraits().psiTakenGuard then
+				-- if this bugs you, original canSoftPath does it this way too!
+			else
+				return simquery_canSoftPath_old( sim, unit, startcell, endcell, ... )
+			end
+		end
+	end
 end
 
 local function lateInit( modApi )
@@ -287,6 +304,39 @@ local function lateInit( modApi )
 	end
 	--end of Olivia
 	
+	--Sharp & Pedler
+	local calculateDamageAndArmorForMelee_old = simquery.calculateDamageAndArmorForMelee
+	simquery.calculateDamageAndArmorForMelee = function( sim, sourceUnit, targetUnit )
+		local dmg, armorPiercing, armor = calculateDamageAndArmorForMelee_old( sim, sourceUnit, targetUnit )
+		if not ThisModLoaded or not sourceUnit then
+			return dmg, armorPiercing, armor
+		end
+		local i = 0 -- for Sharp
+		local z = 0 -- for Pedler
+		local unitOwner = sourceUnit:getUnitOwner()
+		if unitOwner and unitOwner:isPC() then
+			for _, ability in ipairs( sim:getNPC():getAbilities() ) do 
+				if ability:getID() == "transistordaemonsharp" then
+					i = i + 1
+				elseif ability:getID() == "transistordaemonpedler" then
+					z = z + 1
+				end
+			end
+
+			i = i * unitOwner:getAugmentCount()
+			if ( armor > 1 ) then 
+				z = z * armor
+			end
+			--log:write(i)
+			--log:write(z)
+		end
+		
+		--log:write("MELEE FOR ".. (targetUnit and targetUnit:getUnitData().name or "UNKNOWN") .." is ".. i .."/".. armor)
+		return (dmg + z), armorPiercing + i, armor
+	end
+	--end of Sharp * Pedler
+	
+	
 	-- PERMADEATH
 	--late init because Escorts Fixed relies on an Upvalue
 	local mission_scoring = include( "mission_scoring" )
@@ -301,8 +351,8 @@ local function lateInit( modApi )
 			if agency.transistorkia == nil then
 				agency.transistorkia = {}
 			end
-			log:write("LOG transistor kia:")
-			log:write(util.stringize(sim.transistordeath,2))
+			--log:write("LOG transistor kia:")
+			--log:write(util.stringize(sim.transistordeath,2))
 			for k,v in pairs(sim.transistordeath) do
 				table.insert(agency.transistorkia, v)
 			end
@@ -361,6 +411,9 @@ local function load(modApi, options, params)
 		modApi:addItemDef( "transistor_badcell_grenade", include( scriptPath .. "/badcell" )[2] )
 		
 		include( scriptPath .. "/banter" )( modApi )
+		
+		local commondefs = include( scriptPath .. "/commondefs")
+		modApi:addTooltipDef( commondefs )
 		
 		-- PERMADEATH --
 		modApi:addGuardDef( "transistor_badcell_kia", include( scriptPath .. "/badcellkia" )[1] )
