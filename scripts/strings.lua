@@ -1,16 +1,10 @@
 return {
-	OPTIONS = {
-		RED = "RED",
-		RED_TIP = "Adds Red to possible agents.",
-		REDENTION = "RED IN DETENTION",
-		REDENTION_TIP = "Chance to rescue Red from detention center.",
-		WIREFRAME = "NO WIREFRAME",
-		WIREFRAME_TIP = "Removes the grayed silhouette of Red when hidden in cover. This makes it harder to notice her, but grants prettier screenshots.",
-		ON_KO = "SPAWN FUNCTIONS WHEN KO",
-		ON_KO_TIP = "Enable this to spawn agent functions when those agents get Knocked Out. Additionally, Reds \"Hurt\" ability will only KO the target.\n\nPlease keep in mind that this makes the Transistor significantly more powerful than we originally intended.",
-		PERMADEATH_POOLRAND = "PERMADEATH RANDOMISATION",
-		PERMADEATH_POOLRAND_TIP = "If the Permadeath mod is enabled, enabling this option randomises which persistent Transistor functions spawn from the available pool.",
-	},
+	ENABLE_RED = "RED",
+	ENABLE_RED_TIP = "Adds Red to possible agents.",
+	ENABLE_ON_KO = "SPAWN FUNCTIONS WHEN KO",
+	ENABLE_ON_KO_TIP = "Enable this to spawn agent functions when those agents get Knocked Out. Additionally, Reds \"Hurt\" ability will only KO the target.\n\nPlease keep in mind that this makes the Transistor significantly more powerful than we originally intended.",
+	ENABLE_PERMADEATH_POOLRAND = "PERMADEATH RANDOMISATION",
+	ENABLE_PERMADEATH_POOLRAND_TIP = "If the Permadeath mod is enabled, enabling this option randomises which persistent Transistor functions spawn from the available pool.",
 	
 	RED = {
 		NAME = "Red",
@@ -52,9 +46,6 @@ return {
 	ABILITY_REMOTECRITICAL_DESC = "Inflict a critical, not quite lethal wound.",
 	ABILITY_REMOTECRITICAL_DESC_KO = "Apply overwhelming pain, causing a temporary Knock-Out.",
 	
-	CONFIRM_REMOTECRITICAL = "Are you sure you want to hurt this agent?",
-	CONFIRM_REMOTECRITICAL_LASTAGENT = "This is your last active agent. Are you sure you want to hurt them?",
-
 	BADCELL = "Bad Cell",
 	TOOLTIP_BADCELL_EXPLO = "VOLATILE",
 	TOOLTIP_BADCELL_EXPLO_DESC = "This unit will explode on the enemy turn, rendering all guards on the same tile KO for that turn.",
@@ -149,7 +140,7 @@ return {
 		},
 		DRACO = {
 			NAME = "Read()",
-			DESC = "Killing a human guard, or pinning him at turn start, reveals a large area. Bonus credits if everything already revealed.",
+			DESC = "Killing/pinning a guard reveals a large area. Bonus credits if everything already revealed.",
 			SHORT_DESC = "Killing/pinning reveals an area",
 			ACTIVE_DESC = "INTEL FROM DYING GUARDS",
 		},
@@ -174,26 +165,37 @@ return {
 		},
 		RED = {
 			NAME = "Crash()",
-			-- DESC = "Every guards' armor and movement range are reduced to half, rounding up.",
-			-- SHORT_DESC = "Halves all guard Armor and AP",
-			-- ACTIVE_DESC = "GUARD ARMOR AND AP HALVED",
-			DESC = "Guard armor is halved, rounded down. Guards lose 4 AP.",
-			SHORT_DESC = "Guard armor halved, guards lose 4 AP",
-			ACTIVE_DESC = "GUARD ARMOR HALVED, -4 AP",
+			DESC = "Every guards' armor and movement range are reduced to half, rounding down.",
+			SHORT_DESC = "Halves all guard Armor and AP",
+			ACTIVE_DESC = "GUARD ARMOR AND AP HALVED",
 		},
-		NUMI = { --TODO
-			NAME = "Invalid()",
-			--rebooting devices can be hacked?
-			DESC = "Hacked drones gain 5 AP and 5 Armor Piercing.",
-			SHORT_DESC = "",
-			ACTIVE_DESC = "",
+		NUMI = {
+			NAME = "Tuning()",
+			DESC = "Hacked drones gain 5 AP. Control hacked drones for 3 extra turns.",
+			SHORT_DESC = "Faster drones, longer control",
+			ACTIVE_DESC = "FASTER DRONES, LONGER CONTROL",
 		},
-		MIST = { --TODO
-			NAME = "Invalid()",
-			DESC = "Guard vision range is drastically reduced.",
-			SHORT_DESC = "Shorter guard vision",
-			ACTIVE_DESC = "SHORTER GUARD VISION",
+		MIST = { --TODO???
+			NAME = "Transmit()",
+			DESC = "Psi-hijack the next human guard to investigate Mist's body.",
+			SHORT_DESC = "Mind control a guard",
+			ACTIVE_DESC = "MIND CONTROL A GUARD",
+			PSI_CONTROL = "PSI CONTROL",
+			PSI_CONTROL_TIP = "This enemy unit is under psi control. Hostile actions taken by this unit will cause a drastic alarm increase.",
+			CANNOT_OVERWATCH = "PSI-CONTROLLED UNITS CANNNOT OVERWATCH",
 		},
+		GHUFF = { 
+			NAME = "Sleuth()",
+			DESC = "Observing guards permanently tags them.",
+			SHORT_DESC = "Tag guards by observing",
+			ACTIVE_DESC = "TAG GUARDS BY OBSERVING",
+		},	
+		PEDLER = { 
+			NAME = "Brawl()",
+			DESC = "+1 melee KO damage per enemy armour, minimum 1. KO'd agents get right back up.",
+			SHORT_DESC = "Extra KO damage, KO resistance",
+			ACTIVE_DESC = "EXTRA KO DAMAGE, KO RESIST",
+		},		
 		CONWAY = { --TODO
 			NAME = "Bashdoor()", --in reference to that exploit
 			--Can hold one guard at gunpoint?
@@ -201,6 +203,13 @@ return {
 			SHORT_DESC = "",
 			ACTIVE_DESC = "",
 		},
+		
+		CARMEN = { -- from Carmen Sandiego mod
+			NAME = "Abscond()",
+			DESC = "Once per agent per turn, agents on tiles with interest points gain 4 AP.",
+			SHORT_DESC = "Bonus AP on interest point",
+			ACTIVE_DESC = "GUARD INTEREST POINTS GIVE AP",
+		},		
 	},
 	
 	LOGS =
