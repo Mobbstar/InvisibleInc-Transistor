@@ -1,11 +1,17 @@
 return {
-	ENABLE_RED = "RED",
-	ENABLE_RED_TIP = "Adds Red to possible agents.",
-	ENABLE_ON_KO = "SPAWN FUNCTIONS WHEN KO",
-	ENABLE_ON_KO_TIP = "Enable this to spawn agent functions when those agents get Knocked Out. Additionally, Reds \"Hurt\" ability will only KO the target.\n\nPlease keep in mind that this makes the Transistor significantly more powerful than we originally intended.",
-	ENABLE_PERMADEATH_POOLRAND = "PERMADEATH RANDOMISATION",
-	ENABLE_PERMADEATH_POOLRAND_TIP = "If the Permadeath mod is enabled, enabling this option randomises which persistent Transistor functions spawn from the available pool.",
-	
+	OPTIONS = {
+		RED = "RED",
+		RED_TIP = "Adds Red to possible agents.",
+		REDENTION = "RED IN DETENTION",
+		REDENTION_TIP = "Chance to rescue Red from detention center.",
+		WIREFRAME = "NO WIREFRAME",
+		WIREFRAME_TIP = "Removes the grayed silhouette of Red when hidden in cover. This makes it harder to notice her, but grants prettier screenshots.",
+		ON_KO = "SPAWN FUNCTIONS WHEN KO",
+		ON_KO_TIP = "Enable this to spawn agent functions when those agents get Knocked Out. Additionally, Reds \"Hurt\" ability will only KO the target.\n\nPlease keep in mind that this makes the Transistor significantly more powerful than we originally intended.",
+		PERMADEATH_POOLRAND = "PERMADEATH RANDOMISATION",
+		PERMADEATH_POOLRAND_TIP = "If the Permadeath mod is enabled, enabling this option randomises which persistent Transistor functions spawn from the available pool.",
+	},
+
 	RED = {
 		NAME = "Red",
 		FILE = "FILE #03-250334A-84681275",
@@ -45,6 +51,9 @@ return {
 	ABILITY_REMOTECRITICAL_TIP = "Hurt {1}",
 	ABILITY_REMOTECRITICAL_DESC = "Inflict a critical, not quite lethal wound.",
 	ABILITY_REMOTECRITICAL_DESC_KO = "Apply overwhelming pain, causing a temporary Knock-Out.",
+	
+	CONFIRM_REMOTECRITICAL = "Are you sure you want to hurt this agent?",
+	CONFIRM_REMOTECRITICAL_LASTAGENT = "This is your last active agent. Are you sure you want to hurt them?",
 	
 	BADCELL = "Bad Cell",
 	TOOLTIP_BADCELL_EXPLO = "VOLATILE",
@@ -140,7 +149,7 @@ return {
 		},
 		DRACO = {
 			NAME = "Read()",
-			DESC = "Killing/pinning a guard reveals a large area. Bonus credits if everything already revealed.",
+			DESC = "Killing a human guard, or pinning him at turn start, reveals a large area. Bonus credits if everything already revealed.",
 			SHORT_DESC = "Killing/pinning reveals an area",
 			ACTIVE_DESC = "INTEL FROM DYING GUARDS",
 		},
@@ -165,9 +174,9 @@ return {
 		},
 		RED = {
 			NAME = "Crash()",
-			DESC = "Every guards' armor and movement range are reduced to half, rounding down.",
-			SHORT_DESC = "Halves all guard Armor and AP",
-			ACTIVE_DESC = "GUARD ARMOR AND AP HALVED",
+			DESC = "Guard armor is halved, rounded down. Guards lose 4 AP.",
+			SHORT_DESC = "Guard armor halved, guards lose 4 AP",
+			ACTIVE_DESC = "GUARD ARMOR HALVED, -4 AP",
 		},
 		NUMI = {
 			NAME = "Tuning()",
