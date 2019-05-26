@@ -3,9 +3,7 @@
 
 # Invisible, Inc. specific
 int/*
-anim.kwad
-gui.kwad
-sound.kwad
+*.kwad
 scripts.zip
 
 # Mobb
