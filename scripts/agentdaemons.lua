@@ -1168,7 +1168,7 @@ return
 		onTrigger = function( self, sim, evType, evData, userUnit )
 			if evType == simdefs.TRG_UNIT_KO then
 				if evData.unit and not evData.unit:isPC() and evData.ticks == nil and not evData.unit:getTraits().isDrone then
-					evData.unit:getTraits().psiCalmedGuard = true
+					evData.unit:getTraits().psiCalmedGuard = true -- the rest handled in modinit
 				end
 			elseif (evType == simdefs.TRG_NEW_INTEREST) or (evType == simdefs.TRG_UNIT_NEWINTEREST) then
 				if evData.unit and not evData.unit:isPC() and evData.unit:getTraits().psiCalmedGuard then
