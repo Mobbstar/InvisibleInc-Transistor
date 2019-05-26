@@ -256,6 +256,17 @@ local function init( modApi )
 			end
 		end
 	end
+	
+		
+	-- for Mist's KIA algorithm --setAlerted doesn't allow you to set a false value so we'll have to do this instead
+	local simunit_setAlerted_old = simunit.setAlerted
+	simunit.setAlerted = function( self, alerted, ... )
+		if self and self:getTraits().psiCalmedGuard and ThisModLoaded and self._sim and self._sim:getNPC():hasMainframeAbility("transistordaemonmistkia") then
+			self:getTraits().alerted = nil
+		else
+			return simunit_setAlerted_old( self, alerted, ... )
+		end
+	end
 end
 
 local function lateInit( modApi )
