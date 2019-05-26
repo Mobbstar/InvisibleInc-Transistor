@@ -986,6 +986,7 @@ return
 				self.capturedGuard:getTraits().takenDrone = nil
 				self.capturedGuard:getTraits().LOSarc = self.oldLOS
 				self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
+				self.capturedGuard:getTraits().mainframeRecapture = self.old_mainframeRecapture
 				self.capturedGuard:setKO( sim, 3 ) -- nap time
 				sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = self.capturedGuard  } ) --swooshy stuff
 				-- special FX needed
@@ -1003,10 +1004,12 @@ return
 						if cellUnit:getTraits().isGuard and ( cellUnit:getPlayerOwner() == sim:getNPC() ) and not cellUnit:getTraits().isDrone and not cellUnit:isKO() then
 							cellUnit:setPlayerOwner( sim:getPC() )
 							cellUnit:getTraits().takenDrone = true --so other guards won't shoot
-							cellUnit:getTraits().psiTakenGuard = true --custom tag
+							cellUnit:getTraits().psiTakenGuard = true --custom tag just in case
 							cellUnit:getTraits().canBeFriendlyShot = true --to enable betrayal behaviour
 							cellUnit:getTraits().sneaking = true
 							cellUnit:getTraits().thoughtVis = nil
+							self.old_mainframeRecapture = cellUnit:getTraits().mainframeRecapture
+							cellUnit:getTraits().mainframeRecapture = nil
 							
 							sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
 							self.capturedGuard = cellUnit
@@ -1030,7 +1033,7 @@ return
 						end
 					end
 				else
-					self.capturedGuard:getTraits().sneaking = true --is otherwise reset back to false every turn apparently
+					self.capturedGuard:getTraits().sneaking = true --is otherwise reset every turn apparently
 				end
 				
 			elseif evType == simdefs.TRG_UNIT_KILLED then -- for if the possessed guard dies
