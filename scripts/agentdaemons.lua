@@ -1148,29 +1148,37 @@ return
 	-- KO'd guards are not alerted when they wake up
 	transistordaemonmistkia = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST_KIA ) )
 	{
-		icon = "gui/icons/daemon_icons/fu_transpose.png",
+		icon = "gui/icons/daemon_icons/fu_transpose.png", --update
 		title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
 		noDaemonReversal = true,
 		
 		onSpawnAbility = function( self, sim, player, agent )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
 			sim:addTrigger( simdefs.TRG_UNIT_KO, self )
-			
+			sim:addTrigger( simdefs.TRG_NEW_INTEREST, self )
+			sim:addTrigger( simdefs.TRG_UNIT_NEWINTEREST, self )
 		end,
 		
 		onDespawnAbility = function( self, sim )
 			sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
+			sim:removeTrigger( simdefs.TRG_NEW_INTEREST, self )
+			sim:removeTrigger( simdefs.TRG_UNIT_NEWINTEREST, self )
 		end,
 		
 		onTrigger = function( self, sim, evType, evData, userUnit )
 			if evType == simdefs.TRG_UNIT_KO then
 				if evData.unit and not evData.unit:isPC() and evData.ticks == nil and not evData.unit:getTraits().isDrone then
-					evData.unit:getTraits().alerted = nil
+					evData.unit:getTraits().psiCalmedGuard = true
+				end
+			elseif (evType == simdefs.TRG_NEW_INTEREST) or (evType == simdefs.TRG_UNIT_NEWINTEREST) then
+				if evData.unit and not evData.unit:isPC() and evData.unit:getTraits().psiCalmedGuard then
+					evData.unit:getTraits().psiCalmedGuard = nil
+					-- reset otherwise this unit will never be able to be alerted again :^)
 				end
 			end
 			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
 		end
-	},		
+	},			
 	
 	--Pedler from Agent Mod Combo
 	--Agents resist KO, +1 KO damage in melee per enemy armour (but at least 1)
