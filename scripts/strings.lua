@@ -185,7 +185,7 @@ return {
 			ACTIVE_DESC = "FASTER DRONES, LONGER CONTROL",
 		},
 		MIST = { --TODO???
-			NAME = "Transmit()",
+			NAME = "Transpose()",
 			DESC = "Psi-hijack the next human guard to investigate Mist's body.",
 			SHORT_DESC = "Mind control a guard",
 			ACTIVE_DESC = "MIND CONTROL A GUARD",
