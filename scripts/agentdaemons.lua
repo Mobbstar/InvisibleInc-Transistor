@@ -953,7 +953,7 @@ return
 		end
 	},
 
-	--Mist from Agent Mod Combo
+--Mist from Agent Mod Combo
 	-- Mist's body being pinned by guard causes her to possess that guard, seizing control until he dies or she wakes up. If guard dies, she is free to possess the next schmuck
 	-- overwatch is disabled for hijacked guard because the animation bugs out, handled in modinit
 	-- need to think of a permadeath version of this...
@@ -962,35 +962,27 @@ return
 		icon = "gui/icons/daemon_icons/fu_transpose.png", --update
 		title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
 		noDaemonReversal = true,
-		trackerCount = 5,
+		trackerCount = 3,
 		
 		onSpawnAbility = function( self, sim, player, agent )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
 			sim:addTrigger( simdefs.TRG_START_TURN, self )
+			sim:addTrigger( simdefs.TRG_END_TURN, self )
 			sim:addTrigger( simdefs.TRG_UNIT_KILLED, self )
 			sim:addTrigger( simdefs.TRG_UNIT_HIT, self )
+			sim:addTrigger( simdefs.TRG_UNIT_WARP, self )
 			self.MistBody = agent
 			
 		end,
 		
 		onDespawnAbility = function( self, sim )
 			sim:removeTrigger( simdefs.TRG_START_TURN, self )
+			sim:removeTrigger( simdefs.TRG_END_TURN, self )
 			sim:removeTrigger( simdefs.TRG_UNIT_KILLED, self )
 			sim:removeTrigger( simdefs.TRG_UNIT_HIT, self )
+			sim:removeTrigger( simdefs.TRG_UNIT_WARP, self )
 			self.MistBody = nil
-			
-			if self.capturedGuard then  --un-hijack guard!
-				self.capturedGuard:setPlayerOwner( sim:getNPC() )
-				self.capturedGuard:getTraits().psiTakenGuard = nil
-				self.capturedGuard:getTraits().canBeFriendlyShot = nil
-				self.capturedGuard:getTraits().takenDrone = nil
-				self.capturedGuard:getTraits().LOSarc = self.oldLOS
-				self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
-				self.capturedGuard:getTraits().mainframeRecapture = self.old_mainframeRecapture
-				self.capturedGuard:setKO( sim, 3 ) -- nap time
-				sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = self.capturedGuard  } ) --swooshy stuff
-				-- special FX needed
-			end
+			self.unPossessGuard( self, sim )
 		end,
 		
 		onTrigger = function( self, sim, evType, evData, userUnit )
@@ -1003,7 +995,11 @@ return
 					for i, cellUnit in ipairs(mist_cell.units) do
 						if cellUnit:getTraits().isGuard and ( cellUnit:getPlayerOwner() == sim:getNPC() ) and not cellUnit:getTraits().isDrone and not cellUnit:isKO() then
 							cellUnit:setPlayerOwner( sim:getPC() )
-							cellUnit:getTraits().takenDrone = true --so other guards won't shoot
+							-- cellUnit:getTraits().takenDrone = true --so other guards won't shoot --no longer used!
+							cellUnit:setDisguise(true)
+							self.idlesOLD = cellUnit:getUnitData().idles -- needed to prevent weird anim glitches. technically this will also affect other guards but this shouldn't be noticeable, especially late in the level... smoking is bad
+							cellUnit:getUnitData().idles = nil
+							cellUnit:getTraits().noLoopOverwatch = nil
 							cellUnit:getTraits().psiTakenGuard = true --custom tag just in case
 							cellUnit:getTraits().canBeFriendlyShot = true --to enable betrayal behaviour
 							cellUnit:getTraits().sneaking = true
@@ -1020,8 +1016,9 @@ return
 							
 							-- fancy FX stuff because I'm weak
 							sim:dispatchEvent( simdefs.EV_CAM_PAN, { self.MistBody:getLocation() } )
-							sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
-							sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = cellUnit  } )
+							sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/transferData" )
+							-- sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
+							-- sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = cellUnit  } )
 							sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
 								unit = cellUnit,
 								txt = util.sformat(STRINGS.TRANSISTOR.AGENTDAEMONS.MIST.PSI_CONTROL),
@@ -1037,21 +1034,74 @@ return
 				end
 				
 			elseif evType == simdefs.TRG_UNIT_KILLED then -- for if the possessed guard dies
-				if self.capturedGuard and evData.unit == self.capturedGuard then
-					self.capturedGuard = nil
+				if self.capturedGuard then
+					if evData.unit == self.capturedGuard then
+						sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = evData.corpse  } ) --swooshy stuff
+						sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
+						local x1, y1 = evData.corpse:getLocation()
+						sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
+							unit = evData.corpse,
+							txt = util.sformat(STRINGS.TRANSISTOR.AGENTDAEMONS.MIST.LOST_CONTROL),
+							x = x1, y = y1,
+							color = {r = 255/255, g = 255/255, b = 51/255, a = 1 },
+						} )	
+						self.capturedGuard = nil
+					end
 				end
 				
 			elseif evType == simdefs.TRG_UNIT_HIT then
 				if self.capturedGuard and evData.sourceUnit and evData.targetUnit then
-					if evData.sourceUnit == self.capturedGuard and evData.targetUnit:getTraits().isGuard or evData.targetUnit:getTraits().isDrone then
+					if evData.sourceUnit == self.capturedGuard and ( evData.targetUnit:getTraits().isGuard or evData.targetUnit:getTraits().isDrone ) then
+						self.capturedGuard:getTraits().psiBulletproof = true -- hack to keep guard from being shot before he's done shooting, causing a bug
+						sim:processReactions( self.capturedGuard )		
+						if (sim:nextRand() <= 0.5 ) then  -- a little RNG
+							self.unPossessGuard( self, sim )
+						end
 						sim:trackerAdvance( self.trackerCount )
 						-- should be punishing enough, as getting away with guard-on-guard murder is pretty easy
 					end
 				end
-				
+			elseif evType == simdefs.TRG_UNIT_WARP or evType == simdefs.TRG_END_TURN then
+				if self.capturedGuard and self.capturedGuard:getTraits().psiBulletproof and ( (evData.unit and evData.unit == self.capturedGuard) or ( evType == simdefs.TRG_END_TURN ) ) then
+					self.capturedGuard:getTraits().psiBulletproof = nil -- this needs to happen in on warp to get the most intuitive behaviour: guard is 'outed' after shooting another guard, but not immediately shot unless he moves, giving him the chance to get to cover
+				end				
 			end
 			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
-		end
+		end,
+		
+		unPossessGuard = function( self, sim )
+			if self.capturedGuard then  --un-hijack guard!
+				self.capturedGuard:setPlayerOwner( sim:getNPC() )
+				self.capturedGuard:getUnitData().idles = self.idlesOLD
+				self.capturedGuard:getTraits().disguise = false
+				-- self.capturedGuard:setDisguise(false) --nice visual cue too
+				sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = self.capturedGuard  } ) --swooshy stuff
+				sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
+				local x1, y1 = self.capturedGuard:getLocation()
+				sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
+					unit = self.capturedGuard,
+					txt = util.sformat(STRINGS.TRANSISTOR.AGENTDAEMONS.MIST.LOST_CONTROL),
+					x = x1, y = y1,
+					color = {r = 255/255, g = 255/255, b = 51/255, a = 1 },
+				} )	
+				
+				self.capturedGuard:setKO( sim, 3 )-- nap time.					
+				self.capturedGuard:getTraits().psiTakenGuard = nil
+				self.capturedGuard:getTraits().canBeFriendlyShot = nil
+				-- self.capturedGuard:getTraits().takenDrone = nil
+				self.capturedGuard:getTraits().LOSarc = self.oldLOS
+				self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
+				self.capturedGuard:getTraits().mainframeRecapture = self.old_mainframeRecapture
+				
+				-- this resets aiming on guards overwatching the hijacked guard, otherwise they stay in overwatch after he's KO until next turn
+				for k, u in pairs(sim:getNPC():getUnits() ) do
+					if u:isValid() and sim:canUnitSeeUnit( u, self.capturedGuard )  and u:getBrain():getTarget() and u:getTraits().isAiming and not u:getTraits().isDrone and u:getBrain():getTarget() == self.capturedGuard then
+						u:resetAllAiming()
+					end
+				end
+				self.capturedGuard = nil
+			end
+		end,
 	},
 	
 	--Mist from Agent Mod Combo
