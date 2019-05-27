@@ -12,7 +12,7 @@ local inventory = include( "sim/inventory" )
 local ThisModLoaded = false
 
 local function earlyInit( modApi )
-	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath"} --PE because it force-overrides some functions we edit
+	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library"} --PE because it force-overrides some functions we edit
 end
 
 local function init( modApi )
