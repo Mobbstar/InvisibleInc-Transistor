@@ -184,13 +184,14 @@ return {
 			SHORT_DESC = "Faster drones, longer control",
 			ACTIVE_DESC = "FASTER DRONES, LONGER CONTROL",
 		},
-		MIST = { --TODO???
+		MIST = { 
 			NAME = "Transpose()",
-			DESC = "Psi-hijack the next human guard to investigate Mist's body.",
+			DESC = "Psi-hijack the next human guard to stand on Mist's body.",
 			SHORT_DESC = "Mind control a guard",
 			ACTIVE_DESC = "MIND CONTROL A GUARD",
 			PSI_CONTROL = "PSI CONTROL",
-			PSI_CONTROL_TIP = "This enemy unit is under psi control. Hostile actions taken by this unit will cause a drastic alarm increase.",
+			PSI_CONTROL_TIP = "This enemy unit is under psi control. Hostile actions taken by this unit will cause a drastic alarm increase and may break control over the unit.",
+			LOST_CONTROL = "CONTROL LOST",
 			CANNOT_OVERWATCH = "PSI-CONTROLLED UNITS CANNNOT OVERWATCH",
 		},
 		
