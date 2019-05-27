@@ -11,6 +11,10 @@ local inventory = include( "sim/inventory" )
 
 local ThisModLoaded = false
 
+local function earlyInit( modApi )
+	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath"} --PE because it force-overrides some functions we edit
+end
+
 local function init( modApi )
     local dataPath = modApi:getDataPath()
 	local scriptPath = modApi:getScriptPath()
@@ -18,7 +22,6 @@ local function init( modApi )
 	-- KLEIResourceMgr.MountPackage( dataPath .. "/sound.kwad", "data" )
 	KLEIResourceMgr.MountPackage( dataPath .. "/anims.kwad", "data" ) 
 	
-	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath"} --PE because it force-overrides some functions we edit
 	--If you don't want Red, disable the entire mod.
 	-- modApi:addGenerationOption("transistor_red",  STRINGS.TRANSISTOR.OPTIONS.RED , STRINGS.TRANSISTOR.OPTIONS.RED_TIP, {noUpdate = true} )
 	-- modApi:addGenerationOption("transistor_detention",  STRINGS.TRANSISTOR.OPTIONS.REDENTION , STRINGS.TRANSISTOR.OPTIONS.REDENTION_TIP, {noUpdate = true} )
@@ -346,7 +349,20 @@ local function lateInit( modApi )
 		return (dmg + z), armorPiercing + i, armor
 	end
 	--end of Sharp * Pedler
-	
+
+	--Mist --this needs to be in lateinit
+	-- hack to prevent guards from shooting a psi-controlled guard who just shot someone else, which bugs out the game as the dead unit tries to stop shooting
+	local calculateShotSuccess_old = simquery.calculateShotSuccess
+	simquery.calculateShotSuccess = function(sim, sourceUnit, targetUnit, equipped, ... )
+		local shot = calculateShotSuccess_old( sim, sourceUnit, targetUnit, equipped, ... )
+		if ThisModLoaded and sim:getNPC():hasMainframeAbility("transistordaemonmist") then
+			if targetUnit:getTraits().psiBulletproof then
+				shot.armorBlocked = true
+			end
+		end
+		
+		return shot
+	end		
 	
 	-- PERMADEATH
 	--late init because Escorts Fixed relies on an Upvalue
@@ -451,6 +467,7 @@ end
 
 return {
     init = init,
+    earlyInit = earlyInit
     lateInit = lateInit,
     load = load,
 	-- lateLoad = lateLoad,
