@@ -86,6 +86,7 @@ local abilitytransistor =
 		and not targetUnit:isGhost() and targetUnit:isPC()
 		and targetUnit:getTraits().canBeCritical ~= nil --Can't check for true because of Permadeath
 		and not targetUnit:getTraits().isDrone 
+		and not targetUnit:getTraits().isGuard --psiTakenGuard
 		and not targetUnit:isDead() then 
 			return true
 		end 

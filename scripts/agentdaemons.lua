@@ -822,7 +822,7 @@ return
 	transistordaemoncarmen = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.CARMEN ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_abscond.png",--needs icon
-		title = STRINGS.CARMEN.AGENTS.CARMEN.NAME or "Carmen",
+		title = STRINGS.CARMEN and STRINGS.CARMEN.AGENTS.CARMEN.NAME or "Carmen",
 		noDaemonReversal = true,
 		APbonus = 4,
 		
@@ -901,7 +901,7 @@ return
 	transistordaemonghuff= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.GHUFF ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_sleuth.png", --update
-		title = STRINGS.AMRE.AGENTS.GHUFF.NAME or "Ghuff",
+		title = STRINGS.AMRE and STRINGS.AMRE.AGENTS.GHUFF.NAME or "Ghuff",
 		noDaemonReversal = true,
 		
 		--everything handled in modinit.lua / init()
@@ -916,7 +916,7 @@ return
 	transistordaemonnumi= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.NUMI ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_tuning.png", --update
-		title = STRINGS.AMRE.AGENTS.NU.NAME or "N-Umi",
+		title = STRINGS.AMRE and STRINGS.AMRE.AGENTS.NU.NAME or "N-Umi",
 		noDaemonReversal = true,
 		MPbonus = 5,
 		LeashBonus = 3,
@@ -960,7 +960,7 @@ return
 	transistordaemonmist = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_transpose.png", --update
-		title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
+		title = STRINGS.AMRE and STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
 		noDaemonReversal = true,
 		trackerCount = 3,
 		
@@ -993,7 +993,7 @@ return
 				if ( self.capturedGuard == nil ) then
 				
 					for i, cellUnit in ipairs(mist_cell.units) do
-						if cellUnit:getTraits().isGuard and ( cellUnit:getPlayerOwner() == sim:getNPC() ) and not cellUnit:getTraits().isDrone and not cellUnit:isKO() then
+						if cellUnit:getTraits().isGuard and ( cellUnit:getPlayerOwner() == sim:getNPC() ) and not cellUnit:getTraits().isDrone and not cellUnit:isDown() then
 							cellUnit:setPlayerOwner( sim:getPC() )
 							-- cellUnit:getTraits().takenDrone = true --so other guards won't shoot --no longer used!
 							cellUnit:setDisguise(true)
@@ -1009,10 +1009,16 @@ return
 							
 							sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
 							self.capturedGuard = cellUnit
-							self.oldLOS = cellUnit:getTraits().LOSarc
-							self.oldLOSperiph = cellUnit:getTraits().LOSperipheralArc
-							cellUnit:getTraits().LOSarc = math.pi * 2
-							cellUnit:getTraits().LOSperipheralArc = nil
+							-- self.oldLOS = cellUnit:getTraits().LOSarc
+							-- self.oldLOSperiph = cellUnit:getTraits().LOSperipheralArc
+							-- cellUnit:getTraits().LOSarc = math.pi * 2
+							-- cellUnit:getTraits().LOSperipheralArc = nil
+							if not cellUnit:getModifiers():has( "LOSarc", "psiTakenGuard" ) and cellUnit:getTraits().LOSarc then
+								cellUnit:getModifiers():add( "LOSarc", "psiTakenGuard", modifiers.SET, math.pi * 2 )
+							end
+							if not cellUnit:getModifiers():has( "LOSperipheralArc", "psiTakenGuard" ) and cellUnit:getTraits().LOSperipheralArc then
+								cellUnit:getModifiers():add( "LOSperipheralArc", "psiTakenGuard", modifiers.SET, nil )
+							end
 							
 							-- fancy FX stuff because I'm weak
 							sim:dispatchEvent( simdefs.EV_CAM_PAN, { self.MistBody:getLocation() } )
@@ -1051,14 +1057,23 @@ return
 				
 			elseif evType == simdefs.TRG_UNIT_HIT then
 				if self.capturedGuard and evData.sourceUnit and evData.targetUnit then
-					if evData.sourceUnit == self.capturedGuard and ( evData.targetUnit:getTraits().isGuard or evData.targetUnit:getTraits().isDrone ) then
-						self.capturedGuard:getTraits().psiBulletproof = true -- hack to keep guard from being shot before he's done shooting, causing a bug
-						sim:processReactions( self.capturedGuard )		
-						if (sim:nextRand() <= 0.5 ) then  -- a little RNG
-							self.unPossessGuard( self, sim )
+					if evData.sourceUnit == self.capturedGuard then
+						if evData.targetUnit:getPlayerOwner() ~= self.capturedGuard:getPlayerOwner() then
+							--targetUnit may be guard, drone, camera, turret, etc. (might be "neutral", but practically enemy player)
+							self.capturedGuard:getTraits().psiBulletproof = true -- hack to keep guard from being shot before he's done shooting, causing a bug
+							sim:processReactions( self.capturedGuard )
+							if evData.targetUnit:getTraits().isGuard or evData.targetUnit:getTraits().isDrone then
+								-- if (sim:nextRand() <= 0.5 ) then  -- a little RNG
+									self.unPossessGuard( self, sim )
+								-- end
+								sim:trackerAdvance( self.trackerCount )
+								-- should be punishing enough, as getting away with guard-on-guard murder is pretty easy
+								-- try to recloak
+							elseif self.capturedGuard and not sim:canPlayerSeeUnit( evData.targetUnit:getPlayerOwner() or sim:getNPC(), self.capturedGuard ) then
+								log:write("Nobody saw this!!!")
+								self.capturedGuard:setDisguise(true)
+							end
 						end
-						sim:trackerAdvance( self.trackerCount )
-						-- should be punishing enough, as getting away with guard-on-guard murder is pretty easy
 					end
 				end
 			elseif evType == simdefs.TRG_UNIT_WARP or evType == simdefs.TRG_END_TURN then
@@ -1070,7 +1085,7 @@ return
 		end,
 		
 		unPossessGuard = function( self, sim )
-			if self.capturedGuard then  --un-hijack guard!
+			if self.capturedGuard and self.capturedGuard:isValid() then  --un-hijack guard!
 				self.capturedGuard:setPlayerOwner( sim:getNPC() )
 				self.capturedGuard:getUnitData().idles = self.idlesOLD
 				self.capturedGuard:getTraits().disguise = false
@@ -1089,18 +1104,19 @@ return
 				self.capturedGuard:getTraits().psiTakenGuard = nil
 				self.capturedGuard:getTraits().canBeFriendlyShot = nil
 				-- self.capturedGuard:getTraits().takenDrone = nil
-				self.capturedGuard:getTraits().LOSarc = self.oldLOS
-				self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
+				-- self.capturedGuard:getTraits().LOSarc = self.oldLOS
+				-- self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
+				self.capturedGuard:getModifiers():remove( "psiTakenGuard" )
 				self.capturedGuard:getTraits().mainframeRecapture = self.old_mainframeRecapture
 				
 				-- this resets aiming on guards overwatching the hijacked guard, otherwise they stay in overwatch after he's KO until next turn
 				for k, u in pairs(sim:getNPC():getUnits() ) do
-					if u:isValid() and sim:canUnitSeeUnit( u, self.capturedGuard )  and u:getBrain():getTarget() and u:getTraits().isAiming and not u:getTraits().isDrone and u:getBrain():getTarget() == self.capturedGuard then
+					if u and u:isValid() and sim:canUnitSeeUnit( u, self.capturedGuard ) and u:getBrain() and u:getBrain():getTarget() and u:getTraits().isAiming and not u:getTraits().isDrone and u:getBrain():getTarget() == self.capturedGuard then
 						u:resetAllAiming()
 					end
 				end
-				self.capturedGuard = nil
 			end
+			self.capturedGuard = nil
 		end,
 	},
 	
@@ -1109,7 +1125,7 @@ return
 	-- transistordaemonmistkia = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST_KIA ) )
 	-- {
 		-- icon = "gui/icons/daemon_icons/fu_transpose.png", --update
-		-- title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
+		-- title = STRINGS.AMRE and STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
 		-- noDaemonReversal = true,
 		-- trackerCount = 5,
 		
@@ -1202,7 +1218,7 @@ return
 	transistordaemonmistkia = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.MIST_KIA ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_transpose.png", --update
-		title = STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
+		title = STRINGS.AMRE and STRINGS.AMRE.AGENTS.MIST.NAME or "Mist",
 		noDaemonReversal = true,
 		
 		onSpawnAbility = function( self, sim, player, agent )
@@ -1238,7 +1254,7 @@ return
 	transistordaemonpedler= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.PEDLER ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_brawl.png",
-		title = STRINGS.AMRE.AGENTS.KPC.NAME or "Pedler",
+		title = STRINGS.AMRE and STRINGS.AMRE.AGENTS.KPC.NAME or "Pedler",
 		noDaemonReversal = true,
 		
 		onSpawnAbility = function( self, sim, player, agent )

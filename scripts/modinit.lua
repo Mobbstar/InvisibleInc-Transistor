@@ -193,6 +193,14 @@ local function init( modApi )
 				-- end
 			-- end
 			--end of Prism 2
+		elseif unitData.type == "laser_emitter" then
+			-- Mist 1
+			-- explicitly grant controlled guards passage
+			local canControl_old = unit.canControl
+			unit.canControl = function( self, unit, ... )
+				return ThisModLoaded and simquery.isAgent(unit) and unit:getTraits().psiTakenGuard or canControl_old(self, unit, ...)
+			end
+			--end of Mist 1
 		end
 		return unit
 	end
@@ -233,17 +241,16 @@ local function init( modApi )
 		return observePath_executeAbility_old( self, sim, unit, userUnit, target, ... )	
 	end
 
-	--Mist
+	--Mist 2
 	--disable overwatch ability for hijacked guards
 	local overwatch_canUseAbility_old = abilitydefs._abilities.overwatch.canUseAbility
 	abilitydefs._abilities.overwatch.canUseAbility = function( self, sim, unit, ... )
-		local canUse = overwatch_canUseAbility_old( self, sim, unit, ... )
 		if ThisModLoaded and sim:getNPC():hasMainframeAbility( "transistordaemonmist" ) then
 			if unit and unit:getTraits().psiTakenGuard then
 				return false, STRINGS.TRANSISTOR.AGENTDAEMONS.MIST.CANNOT_OVERWATCH
 			end
 		end
-		return canUse
+		return overwatch_canUseAbility_old( self, sim, unit, ... )
 	end
 	
 	--hijacked guards still try to use this function, which causes an assertion error because it's not 'meant' to be used by PC units
@@ -259,6 +266,14 @@ local function init( modApi )
 			end
 		end
 	end
+	
+	-- local simquery_isEnemyTarget_old = simquery.isEnemyTarget
+	-- simquery.isEnemyTarget = function( player, unit, ... )
+		-- if ThisModLoaded and unit and unit:getTraits().psiTakenGuard then
+			-- return false -- Nothing is aggressive to taken-over guards (same applies to takenDrone)
+		-- end
+		-- return simquery_isEnemyTarget_old( player, unit, ... )
+	-- end
 	
 		
 	-- for Mist's KIA algorithm --setAlerted doesn't allow you to set a false value so we'll have to do this instead
@@ -467,7 +482,7 @@ end
 
 return {
     init = init,
-    earlyInit = earlyInit
+    earlyInit = earlyInit,
     lateInit = lateInit,
     load = load,
 	-- lateLoad = lateLoad,
