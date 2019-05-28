@@ -190,7 +190,7 @@ return {
 			SHORT_DESC = "Mind control a guard",
 			ACTIVE_DESC = "MIND CONTROL  A GUARD", --double space after "control" because else it looks awkward in-game -M
 			PSI_CONTROL = "PSI CONTROL",
-			PSI_CONTROL_TIP = "This enemy unit is under psi control. Hostile actions taken by this unit will cause a drastic alarm increase and may break control over the unit.",
+			PSI_CONTROL_TIP = "This enemy unit is under psi control. Hostile actions taken by this unit will cause a drastic alarm increase and break control over the unit.",
 			LOST_CONTROL = "CONTROL LOST",
 			CANNOT_OVERWATCH = "PSI-CONTROLLED UNITS CANNNOT OVERWATCH",
 		},
