@@ -994,6 +994,13 @@ return
 				
 					for i, cellUnit in ipairs(mist_cell.units) do
 						if cellUnit:getTraits().isGuard and ( cellUnit:getPlayerOwner() == sim:getNPC() ) and not cellUnit:getTraits().isDrone and not cellUnit:isDown() then
+							--cure the detached peripheral cone syndrome (visual bug) -M
+							local periphRange_old = cellUnit:getTraits().LOSperipheralRange
+							cellUnit:getTraits().LOSperipheralRange = 0
+							sim:refreshUnitLOS( cellUnit )
+							cellUnit:getTraits().LOSperipheralRange = periphRange_old
+
+							--convert the guard
 							cellUnit:setPlayerOwner( sim:getPC() )
 							-- cellUnit:getTraits().takenDrone = true --so other guards won't shoot --no longer used!
 							cellUnit:setDisguise(true)
@@ -1021,6 +1028,7 @@ return
 							end
 							
 							-- fancy FX stuff because I'm weak
+							-- sim:dispatchEvent( simdefs.EV_LOS_REFRESH, { seer = cellUnit, cells = {} } )
 							sim:dispatchEvent( simdefs.EV_CAM_PAN, { self.MistBody:getLocation() } )
 							sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/transferData" )
 							-- sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
