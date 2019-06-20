@@ -285,6 +285,8 @@ local function init( modApi )
 			return simunit_setAlerted_old( self, alerted, ... )
 		end
 	end
+	
+	util.tmerge( STRINGS.LOADING_TIPS, STRINGS.TRANSISTOR.LOADING_TIPS  ) --add new loading screen tooltips
 end
 
 local function lateInit( modApi )
