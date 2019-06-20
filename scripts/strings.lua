@@ -71,11 +71,16 @@ return {
 		"TRANSISTOR: Red's Transistor augment will make agents spawn as cyberconscious algorithms when they are down. Use this to turn the tide.",
 		"TRANSISTOR: With the Permadeath mod enabled, any agent that permanently dies with Red around will stay with you as an algorithm for the rest of the campaign.",
 		"TRANSISTOR: Red's algorithm, Crash(), will slow and weaken enemies as long as it's active.",
-		"TRANSISTOR: With the Permadeath mod enabled, you can have up to four persistent algorithms active at a time.",
+		"TRANSISTOR: With the Permadeath mod enabled, you can have up to four ghost algorithms active at a time.",
 		"TRANSISTOR: An agent with no unique function of their own will spawn Checksum(), a powerful weapon for KOing guards.",
 		"TRANSISTOR: Each agent's Transistor algorithm matches their skills and personality. This may not always be a good thing.",
-		"TRANSISTOR: Mist's algorithm, Transpose(), allows you to psijack guards while she is unconscious.",
+		"TRANSISTOR: Transpose() allows you to psijack an enemy guard, mind-controlling them for as long as Mist is down.",
 		"TRANSISTOR: Red's Hurt ability can activate the algorithms at a tactically convenient time. She can even use it on herself!",
+		"TRANSISTOR: 'Agent down' doesn't mean you've failed. Agent algorithms are there to help you claw your way back to victory!",
+		"TRANSISTOR: Attention(), Chase(), Grance() and Abscond() are all handy for that boost of extra AP in a pinch.",
+		"TRANSISTOR: With the Agent Reserve mod, you can keep expanding your team past the 4 agent limit and experiment with their algorithms.",
+		"TRANSISTOR: Coup() and Grace() can be used together for a fast, lethal game-changer when Olivia and Derek are down.",
+		"TRANSISTOR: You can use Red's Hurt ability on the Prisoner or the Courier to spawn Checksum().",
 		},
 	
 	AGENTDAEMONS = {
