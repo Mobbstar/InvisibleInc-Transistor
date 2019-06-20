@@ -8,7 +8,6 @@ local simfactory = include( "sim/simfactory" )
 local astar_handlers = include( "sim/astar_handlers" )
 local inventory = include( "sim/inventory" )
 --local cutil = include("client/client_util")
-
 local ThisModLoaded = false
 
 local function earlyInit( modApi )
@@ -286,6 +285,7 @@ local function init( modApi )
 		end
 	end
 	
+	local STRINGS = include("strings")
 	util.tmerge( STRINGS.LOADING_TIPS, STRINGS.TRANSISTOR.LOADING_TIPS  ) --add new loading screen tooltips
 end
 
