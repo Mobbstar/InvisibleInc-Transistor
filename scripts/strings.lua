@@ -66,6 +66,18 @@ return {
 	CORRUPTEDCELL = "Corrupted Cell",
 	TOOLTIP_CORRUPTEDCELL_LOS_DESC = "Vision range is 1 tile. Does not detect sound.",	
 	
+	LOADING_TIPS = {
+		"TRANSISTOR: Yyou can view the available agent algorithms in the Transistor's tooltip during a mission.",
+		"TRANSISTOR: Red's Transistor augment will make agents spawn as cyberconscious algorithms when they are down. Use this to turn the tide.",
+		"TRANSISTOR: With the Permadeath mod enabled, any agent that permanently dies with Red around will stay with you as an algorithm for the rest of the campaign.",
+		"TRANSISTOR: Red's algorithm, Crash(), will slow and weaken enemies as long as it's active.",
+		"TRANSISTOR: With the Permadeath mod enabled, you can have up to four persistent algorithms active at a time.",
+		"TRANSISTOR: An agent with no unique function of their own will spawn Checksum(), a powerful weapon for KOing guards.",
+		"TRANSISTOR: Each agent's Transistor algorithm matches their skills and personality. This may not always be a good thing.",
+		"TRANSISTOR: Mist's algorithm, Transpose(), allows you to psijack guards while she is unconscious.",
+		"TRANSISTOR: Red's Hurt ability can activate the algorithms at a tactically convenient time. She can even use it on herself!",
+		},
+	
 	AGENTDAEMONS = {
 		GENERIC = {
 			NAME = "Checksum()",
