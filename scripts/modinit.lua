@@ -411,6 +411,58 @@ end
 local function load(modApi, options, params)
 	local scriptPath = modApi:getScriptPath()
 	
+	--Permadeath thing for spawning persistent algorithms of KIA agents. Copypaste from abilitytransistor.lua with some of the comment garbage cut down
+	--note, putting this edit in init does not work for some reason, keep it in Load please
+	local mission_util = include("sim/missions/mission_util")
+	local old_mission_util_makeAgentConnection = mission_util.makeAgentConnection
+	
+		if not ThisModLoaded then
+			mission_util.makeAgentConnection = function( script, sim, ... )
+				old_mission_util_makeAgentConnection( script, sim, ... )
+				
+				local agency = sim:getParams().agency
+				if agency.transistorkia and #agency.transistorkia > 0 then
+					local KIApool = agency.transistorkia					
+					local poolsizemax
+					
+					if #KIApool > 4 then
+						poolsizemax = 4
+					else 
+						poolsizemax = #KIApool
+					end
+					
+					local poolsize = sim:nextRand(1,poolsizemax)
+					if simdefs.transistor_permadeath_poolrand then 
+						poolsize = poolsizemax
+					end
+					local spawnedpool = {} -- what we'll actually spawn
+					local tempdaemons = util.tcopy(KIApool)
+					local spawnedlimiter = false -- ensures max 1 daemon per spawned batch
+					while #spawnedpool < poolsize do
+						
+						local i = sim:nextRand(1, #tempdaemons)
+						if #KIApool > 2 and sim:nextRand() < .25 and not spawnedlimiter then
+							-- 25% chance to spawn Endless daemon instead of agent algorithm if you've been naughty
+							local limiter = serverdefs.ENDLESS_DAEMONS[ sim:nextRand(1, #serverdefs.ENDLESS_DAEMONS) ]
+							table.insert(spawnedpool, limiter)
+							spawnedlimiter = true
+						else
+							table.insert(spawnedpool, tempdaemons[i])
+							table.remove(tempdaemons, i)
+						end	
+						
+					end
+					
+					for k, ghostfunction in pairs(spawnedpool) do
+						-- sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=ghostfunction.name, icon=ghostfunction.icon, txt=ghostfunction.activedesc, title=ghostfunction.title } ) -- this does nothing because it's overriden by start of mission HUD..
+						
+						sim:getNPC():addMainframeAbility(sim, ghostfunction, sim:getNPC(), 0)
+					end						
+
+				end
+			end
+		end
+	
 	if options.permadeath_poolrand and options.permadeath_poolrand.enabled then
 		rawset(simdefs, "transistor_permadeath_poolrand", false)
 	else
