@@ -201,8 +201,10 @@ local abilitytransistor =
 		self.abilityOwner = nil
 		self._possibleDaemons = nil
 		--if red leaves, remove all Transistor effects
-		for unit, _ in pairs(self.downedagents) do
-			removeAlgorithm(self, sim, unit)
+		if self.downedagents then
+			for unit, _ in pairs(self.downedagents) do
+				removeAlgorithm(self, sim, unit)
+			end
 		end
 	end,
 	
