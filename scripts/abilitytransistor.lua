@@ -222,6 +222,48 @@ local abilitytransistor =
 
 			-- PERMADEATH --
 			--persistent algorithm choice moved to makeAgentConnection tweak in modinit
+			-- returning block here for the purposes of the Omni Mainframe mission which doesn't use makeAgentConnection
+			if (sim:getParams().situationName == "ending_1") and evData:isPC() and sim:getTurnCount() <= 0 then
+				local agency = sim:getParams().agency
+				if agency.transistorkia then
+					local KIApool = agency.transistorkia
+
+					if #KIApool > 0 then
+					
+						-- get our random set of KIA agent daemons, but not more than four
+						local poolsizemax
+						if #KIApool > 4 then poolsizemax = 4 else poolsizemax = #KIApool end -- either 4 or all available, whichever is lesser, minimum 1 though due to if condition at start of block
+						local poolsize = sim:nextRand(1,poolsizemax) -- spawn varying number each mission
+						if simdefs.transistor_permadeath_poolrand then --We run the nextRand anyways for backwards compatibilitiy (random is no longer default)
+							poolsize = poolsizemax
+						end
+						local spawnedpool = {} -- what we'll actually spawn
+						local tempdaemons = util.tcopy(KIApool)
+						local spawnedlimiter = false -- ensures max 1 daemon per spawned batch
+						while #spawnedpool < poolsize do
+							
+								local i = sim:nextRand(1, #tempdaemons)
+								if #KIApool > 2 and sim:nextRand() < .25 and not spawnedlimiter then
+									-- 25% chance to spawn Endless daemon instead of agent algorithm if you've been naughty
+									local limiter = serverdefs.ENDLESS_DAEMONS[ sim:nextRand(1, #serverdefs.ENDLESS_DAEMONS) ]
+									table.insert(spawnedpool, limiter)
+									spawnedlimiter = true
+								else
+									table.insert(spawnedpool, tempdaemons[i])
+									table.remove(tempdaemons, i)
+								end	
+							
+						end
+
+						for k, ghostfunction in pairs(spawnedpool) do
+							-- sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=ghostfunction.name, icon=ghostfunction.icon, txt=ghostfunction.activedesc, title="title" } ) -- this does nothing because it's overriden by start of mission HUD..
+							
+							sim:getNPC():addMainframeAbility(sim, ghostfunction, sim:getNPC(), 0)
+						end						
+		
+					end
+				end
+			end
 			-- /PERMADEATH
 			
 		elseif evType == simdefs.TRG_UNIT_RESCUED
