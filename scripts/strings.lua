@@ -77,7 +77,7 @@ return {
 		"TRANSISTOR: Transpose() allows you to psijack an enemy guard, mind-controlling them for as long as Mist is down.",
 		"TRANSISTOR: Red's Hurt ability can activate the algorithms at a tactically convenient time. She can even use it on herself!",
 		"TRANSISTOR: 'Agent down' doesn't mean you've failed. Agent algorithms are there to help you claw your way back to victory!",
-		"TRANSISTOR: Attention(), Chase(), Grance() and Abscond() are all handy for that boost of extra AP in a pinch.",
+		"TRANSISTOR: Attention(), Chase(), Grace() and Abscond() are all handy for that boost of extra AP in a pinch.",
 		"TRANSISTOR: With the Agent Reserve mod, you can keep expanding your team past the 4 agent limit and experiment with their algorithms.",
 		"TRANSISTOR: Coup() and Grace() can be used together for a fast, lethal game-changer when Olivia and Derek are down.",
 		"TRANSISTOR: You can use Red's Hurt ability on the Prisoner or the Courier to spawn Checksum().",
