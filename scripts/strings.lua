@@ -67,7 +67,7 @@ return {
 	TOOLTIP_CORRUPTEDCELL_LOS_DESC = "Vision range is 1 tile. Does not detect sound.",	
 	
 	LOADING_TIPS = {
-		"TRANSISTOR: Yyou can view the available agent algorithms in the Transistor's tooltip during a mission.",
+		"TRANSISTOR: You can view the available agent algorithms in the Transistor's tooltip during a mission.",
 		"TRANSISTOR: Red's Transistor augment will make agents spawn as cyberconscious algorithms when they are down. Use this to turn the tide.",
 		"TRANSISTOR: With the Permadeath mod enabled, any agent that permanently dies with Red around will stay with you as an algorithm for the rest of the campaign.",
 		"TRANSISTOR: Red's algorithm, Crash(), will slow and weaken enemies as long as it's active.",
