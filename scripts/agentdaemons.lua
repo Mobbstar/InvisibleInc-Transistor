@@ -1373,9 +1373,9 @@ return
 					sim:spawnUnit( self.badcell )
 					self.badcell:setPlayerOwner(sim:getPC())
 					-- find random viable known cell
-					local allcells = {}				
+					local allcells = {}
 					sim:forEachCell(function(_cell)
-						cell = _cell
+						local cell = _cell
 						if (cell.impass == nil or cell.impass <= 0) and not cell.isSolid then
 							table.insert(allcells,cell)
 						end
@@ -1399,8 +1399,7 @@ return
 						-- log:write(util.stringize(allcells,2))
 						-- log:write(util.stringize(spawncell,2))
 						sim:warpUnit( self.badcell, spawncell)
-						local cellx, celly = unpack(spawncell)
-						sim:dispatchEvent( simdefs.EV_CAM_PAN, { cellx, celly } ) --sorry, the absence of this has been bugging me for months -Hek
+						sim:dispatchEvent( simdefs.EV_CAM_PAN, { spawncell.x, spawncell.y } ) --sorry, the absence of this has been bugging me for months -Hek
 						sim:dispatchEvent( simdefs.EV_TELEPORT, { units={self.badcell}, warpOut=false } )
 					end
 					end
