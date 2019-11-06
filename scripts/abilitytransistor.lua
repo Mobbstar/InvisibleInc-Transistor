@@ -315,7 +315,7 @@ local abilitytransistor =
 					sim.transistordeath = {}
 				end
 					
-				local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0]
+				local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0] or "generickia"
 					if abilityID == "generic" then
 						abilityID = "generickia"
 					elseif abilityID == "mist" then
