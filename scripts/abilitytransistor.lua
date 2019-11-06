@@ -41,6 +41,10 @@ local _agentdaemons = {
 	mod_04_n_umi = "numi", --N-UMI
 } 
 
+local permadeathSituations = {
+	["mid_1"] = true, ["mid_2"] = true, ["ending_1"] = true,
+}
+
 local function removeAlgorithm(self, sim, unit)
 	abilityID = _agentdaemons[unit:getUnitData().agentID or 0] or "generic"
 	--disable the daemon again (fails if none of this type are left)
@@ -223,7 +227,7 @@ local abilitytransistor =
 			-- PERMADEATH --
 			--persistent algorithm choice moved to makeAgentConnection tweak in modinit
 			-- returning block here for the purposes of the Omni Mainframe mission which doesn't use makeAgentConnection
-			if (sim:getParams().situationName == "ending_1") and evData:isPC() and sim:getTurnCount() <= 0 then
+			if permadeathSituations[sim:getParams().situationName] and evData:isPC() and sim:getTurnCount() <= 0 then
 				local agency = sim:getParams().agency
 				if agency.transistorkia then
 					local KIApool = agency.transistorkia
