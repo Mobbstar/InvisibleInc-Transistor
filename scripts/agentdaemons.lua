@@ -1295,7 +1295,46 @@ return
 		end
 	},
 	
-	-- Conway?
+	--Goose from Goose Protocol
+	--Agents gain Honk ability, simple and lazy but effective
+	transistordaemongoose= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.GOOSE ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_gaggle.png",
+		title = STRINGS.GOOSE and STRINGS.GOOSE.AGENTS.GOOSE.NAME or "Goose",
+		noDaemonReversal = true,
+		
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			for i, unit in pairs(sim:getPC():getUnits()) do
+				if unit:getUnitData().agentID and (unit:getUnitData().agentID ~= "mod_goose") then
+					unit:giveAbility("honk_transistor")
+				end
+			end
+			
+		end,
+		
+		onDespawnAbility = function( self, sim )
+			for i, unit in pairs(sim:getPC():getUnits()) do
+				if unit:getUnitData().agentID and (unit:getUnitData().agentID ~= "mod_goose") then
+					unit:removeAbility(sim, "honk_transistor")
+				end
+			end
+		end,
+	},	
+	-- Conway from Gunpoint mod
+	-- Bashdoor(): guards who kick down doors KO themselves for 4 turns and generate 4 PWR for the player
+	transistordaemonconway= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.CONWAY ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_bashdoor.png",
+		title = STRINGS.GUNPOINT and STRINGS.GUNPOINT.CONWAY.NAME or "Conway",
+		noDaemonReversal = true,
+		
+		-- handled in modinit / init
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+		end,
+		
+	},		
 	
 	---
 	
