@@ -39,6 +39,8 @@ local _agentdaemons = {
 	mod_02_mist = "mist", --MIST
 	mod_03_ghuff = "ghuff", --GHUFF
 	mod_04_n_umi = "numi", --N-UMI
+	mod_goose = "goose", --GOOSE
+	gunpoint_conway = "conway", -- CONWAY
 } 
 
 local permadeathSituations = {
