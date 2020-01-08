@@ -239,12 +239,12 @@ return {
 			SHORT_DESC = "Extra KO damage, KO resistance",
 			ACTIVE_DESC = "EXTRA KO DAMAGE, KO RESIST",
 		},		
-		CONWAY = { --TODO
+		CONWAY = {
 			NAME = "Bashdoor()", --in reference to that exploit
 			--Can hold one guard at gunpoint?
 			DESC = "By kicking down doors, guards generate 4 PWR and KO themselves for 4 turns.",
-			SHORT_DESC = "",
-			ACTIVE_DESC = "",
+			SHORT_DESC = "Doorkicking guards self-KO",
+			ACTIVE_DESC = "DOORKICKING HURTS GUARDS",
 		},
 		
 		CARMEN = { -- from Carmen Sandiego mod
@@ -252,6 +252,13 @@ return {
 			DESC = "Once per agent per turn, agents on tiles with interest points gain 4 AP.",
 			SHORT_DESC = "Bonus AP on interest point",
 			ACTIVE_DESC = "GUARD INTEREST POINTS GIVE AP",
+		},	
+		
+		GOOSE = { -- from Goose Protocol mod
+			NAME = "Gaggle()",
+			DESC = "All agents gain Goose's Honk ability.",
+			SHORT_DESC = "Agents can Honk",
+			ACTIVE_DESC = "AGENTS CAN HONK",
 		},		
 	},
 	
