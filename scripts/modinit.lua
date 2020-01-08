@@ -12,7 +12,7 @@ local inventory = include( "sim/inventory" )
 local ThisModLoaded = false
 
 local function earlyInit( modApi )
-	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library"} --PE because it force-overrides some functions we edit
+	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library", "Gunpoint"} --PE because it force-overrides some functions we edit
 end
 
 local function init( modApi )
@@ -285,6 +285,27 @@ local function init( modApi )
 			return simunit_setAlerted_old( self, alerted, ... )
 		end
 	end
+
+	-- for Conway
+	local breakDoor_executeAbility_old = abilitydefs._abilities.breakDoor.executeAbility
+	abilitydefs._abilities.breakDoor.executeAbility = function( self, sim, unit, userUnit, cell, direction, ... )
+
+		breakDoor_executeAbility_old( self, sim, unit, userUnit, cell, direction, ... ) --let them do the door break first
+		if ThisModLoaded and sim:getNPC():hasMainframeAbility( "transistordaemonconway" ) then
+			if userUnit and userUnit:isNPC() then
+				userUnit:setKO( sim, 4 )
+				sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
+				local x1, y1 = userUnit:getLocation()
+				sim:getPC():addCPUs(4, sim)
+				sim:dispatchEvent(simdefs.EV_UNIT_FLOAT_TXT, {
+				unit = userUnit,
+				txt = "+4 PWR",
+				x = x1, y = y1,
+				color = {r = 255/255, g = 255/255, b = 255/255, a = 1 },} )
+			end
+		end
+	end
+	--end of Conway
 	
 	local STRINGS = include("strings")
 	util.tmerge( STRINGS.LOADING_TIPS, STRINGS.TRANSISTOR.LOADING_TIPS  ) --add new loading screen tooltips
@@ -497,6 +518,7 @@ local function load(modApi, options, params)
 		
 		modApi:addAbilityDef( "remotecriticalself", scriptPath .."/remotecriticalself" )
 		modApi:addAbilityDef( "ability_transistor", scriptPath .."/abilitytransistor" )
+		modApi:addAbilityDef( "honk_transistor", scriptPath .."/honk_transistor" ) --from Goose mod with animation change
 		for k, v in pairs(include( scriptPath .. "/agentdaemons" )) do
 			modApi:addDaemonAbility( k, v )
 		end
