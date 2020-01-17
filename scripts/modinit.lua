@@ -12,7 +12,7 @@ local inventory = include( "sim/inventory" )
 local ThisModLoaded = false
 
 local function earlyInit( modApi )
-	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library", "Gunpoint"} --PE because it force-overrides some functions we edit
+	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library", "Gunpoint","Untitled Inc. Goose Protocol"} --PE because it force-overrides some functions we edit
 end
 
 local function init( modApi )
@@ -35,6 +35,14 @@ local function init( modApi )
 	for i,log in ipairs(logs) do      
 		modApi:addLog(log)
 	end
+	
+	function mod_manager:findModByName( name ) --for mod dependencies and such
+		for i, modData in ipairs(self.mods) do
+			if name and mod_manager:getModName( modData.id ) == name then
+					return modData
+			end
+		end
+	end	
 	
 	
 	-- local useItem_old = inventory.useItem
@@ -518,7 +526,11 @@ local function load(modApi, options, params)
 		
 		modApi:addAbilityDef( "remotecriticalself", scriptPath .."/remotecriticalself" )
 		modApi:addAbilityDef( "ability_transistor", scriptPath .."/abilitytransistor" )
-		modApi:addAbilityDef( "honk_transistor", scriptPath .."/honk_transistor" ) --from Goose mod with animation change
+		
+		local Goose_Protocol = mod_manager:findModByName("Untitled Inc. Goose Protocol")
+		if Goose_Protocol then
+			modApi:addAbilityDef( "honk_transistor", scriptPath .."/honk_transistor" ) --from Goose mod with animation change
+		end
 		for k, v in pairs(include( scriptPath .. "/agentdaemons" )) do
 			modApi:addDaemonAbility( k, v )
 		end
