@@ -1278,6 +1278,12 @@ return
 		onDespawnAbility = function( self, sim )
 			sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
 			sim:removeTrigger( simdefs.TRG_START_TURN, self )
+			for i, unit in pairs(sim:getPC():getUnits()) do
+				if unit:getTraits().transistor_ko_immune then
+					unit:getTraits().transistor_ko_immune = nil
+					unit:getTraits().canKO = true
+				end
+			end
 		end,
 		
 		onTrigger = function( self, sim, evType, evData, userUnit )
