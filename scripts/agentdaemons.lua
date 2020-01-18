@@ -1271,11 +1271,13 @@ return
 		onSpawnAbility = function( self, sim, player, agent )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
 			sim:addTrigger( simdefs.TRG_UNIT_KO, self )
+			sim:addTrigger( simdefs.TRG_START_TURN, self )
 			
 		end,
 		-- melee KO damage handled in modinit alongside Sharp's stuff
 		onDespawnAbility = function( self, sim )
 			sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
+			sim:removeTrigger( simdefs.TRG_START_TURN, self )
 		end,
 		
 		onTrigger = function( self, sim, evType, evData, userUnit )
@@ -1288,8 +1290,17 @@ return
 					-- sim:dispatchEvent( simdefs.EV_UNIT_KO, {unit = evData.unit, stand = true } )
 					evData.unit:getTraits().mp = evData.unit:getTraits().mp + 5
 					sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = evData.unit } )
+					evData.unit:getTraits().canKO = false --canKO is checked in canUseAbility of ce_melee_ko. This is required for AGP compatibility
+					evData.unit:getTraits().transistor_ko_immune = true --this fix allows the Ghost Unit to try to melee-KO the agent once, but won't try again that turn, instead of getting caught in an endless, hilarious loop of hitting the agent and the agent getting back up
 								
-				end			
+				end
+			elseif evType == simdefs.TRG_START_TURN then
+				for i, unit in pairs(sim:getPC():getUnits()) do
+					if unit:getTraits().transistor_ko_immune then
+						unit:getTraits().transistor_ko_immune = nil
+						unit:getTraits().canKO = true
+					end
+				end
 			end
 			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
 		end
