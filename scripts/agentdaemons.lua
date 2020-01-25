@@ -1013,7 +1013,7 @@ return
 							cellUnit:getTraits().thoughtVis = nil
 							self.old_mainframeRecapture = cellUnit:getTraits().mainframeRecapture
 							cellUnit:getTraits().mainframeRecapture = nil
-							self.old_brain = cellUnit:getBrain() --they won't need their brain while we're in control, and keeping it messes with canSoftPath
+							cellUnit:getTraits().Transpose_old_brain = cellUnit:getBrain() --they won't need their brain while we're in control, and keeping it messes with canSoftPath
 							cellUnit._brain = nil
 							
 							sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
@@ -1118,7 +1118,8 @@ return
 				-- self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
 				self.capturedGuard:getModifiers():remove( "psiTakenGuard" )
 				self.capturedGuard:getTraits().mainframeRecapture = self.old_mainframeRecapture
-				self.capturedGuard._brain = self.old_brain
+				self.capturedGuard._brain = self.capturedGuard:getTraits().Transpose_old_brain
+				self.capturedGuard:getTraits().Transpose_old_brain = nil
 				
 				-- this resets aiming on guards overwatching the hijacked guard, otherwise they stay in overwatch after he's KO until next turn
 				for k, u in pairs(sim:getNPC():getUnits() ) do
