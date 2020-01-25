@@ -286,9 +286,9 @@ local function init( modApi )
 	local killUnit_old = simunit.killUnit
 	simunit.killUnit = function( self, sim, ... )
 
-		if self:getTraits().psiTakenGuard and sim.Transpose_old_brain then
-			self._brain = sim.Transpose_old_brain --give them their brain back so vanilla killUnit can run properly
-			sim.Transpose_old_brain = nil
+		if self:getTraits().psiTakenGuard and self:getTraits().Transpose_old_brain then
+			self._brain = self:getTraits().Transpose_old_brain --give them their brain back so vanilla killUnit can run properly
+			self:getTraits().Transpose_old_brain = nil
 		end
 
 		killUnit_old(self, sim, ... )
