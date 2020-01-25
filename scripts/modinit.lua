@@ -282,7 +282,17 @@ local function init( modApi )
 		-- end
 		-- return simquery_isEnemyTarget_old( player, unit, ... )
 	-- end
-	
+
+	local killUnit_old = simunit.killUnit
+	simunit.killUnit = function( self, sim, ... )
+
+		if self:getTraits().psiTakenGuard and sim.Transpose_old_brain then
+			self._brain = sim.Transpose_old_brain --give them their brain back so vanilla killUnit can run properly
+			sim.Transpose_old_brain = nil
+		end
+
+		killUnit_old(self, sim, ... )
+	end	
 		
 	-- for Mist's KIA algorithm --setAlerted doesn't allow you to set a false value so we'll have to do this instead
 	local simunit_setAlerted_old = simunit.setAlerted
