@@ -1013,6 +1013,7 @@ return
 							cellUnit:getTraits().thoughtVis = nil
 							self.old_mainframeRecapture = cellUnit:getTraits().mainframeRecapture
 							cellUnit:getTraits().mainframeRecapture = nil
+							cellUnit:getBrain():setDestination( nil )
 							cellUnit:getTraits().Transpose_old_brain = cellUnit:getBrain() --they won't need their brain while we're in control, and keeping it messes with canSoftPath
 							cellUnit._brain = nil
 							
