@@ -1015,7 +1015,12 @@ return
 							cellUnit:getTraits().mainframeRecapture = nil
 							cellUnit:getBrain():setDestination( nil )
 							cellUnit:getTraits().Transpose_old_brain = cellUnit:getBrain() --they won't need their brain while we're in control, and keeping it messes with canSoftPath
-							cellUnit:getBrain():onDespawned()
+							--cellUnit:getBrain():onDespawned() --nope, this is buggy as hell
+							cellUnit._brain = nil
+							if not cellUnit:hasAbility("moveBody") then
+								cellUnit:giveAbility("moveBody")
+								cellUnit:getTraits().Transpose_moveBody = true --New Corporate Tactics compatibility
+							end
 							
 							sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
 							self.capturedGuard = cellUnit
@@ -1121,7 +1126,9 @@ return
 				self.capturedGuard:getTraits().mainframeRecapture = self.old_mainframeRecapture
 				self.capturedGuard._brain = self.capturedGuard:getTraits().Transpose_old_brain
 				self.capturedGuard:getTraits().Transpose_old_brain = nil
-				
+				if self.capturedGuard:getTraits().Transpose_moveBody then
+					self.capturedGuard:removeAbility(sim, "moveBody") --remove ability because they don't normally have it
+				end
 				-- this resets aiming on guards overwatching the hijacked guard, otherwise they stay in overwatch after he's KO until next turn
 				for k, u in pairs(sim:getNPC():getUnits() ) do
 					if u and u:isValid() and sim:canUnitSeeUnit( u, self.capturedGuard ) and u:getBrain() and u:getBrain():getTarget() and u:getTraits().isAiming and not u:getTraits().isDrone and u:getBrain():getTarget() == self.capturedGuard then
