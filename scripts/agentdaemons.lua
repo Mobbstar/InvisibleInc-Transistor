@@ -1015,7 +1015,7 @@ return
 							cellUnit:getTraits().mainframeRecapture = nil
 							cellUnit:getBrain():setDestination( nil )
 							cellUnit:getTraits().Transpose_old_brain = cellUnit:getBrain() --they won't need their brain while we're in control, and keeping it messes with canSoftPath
-							cellUnit._brain = nil
+							cellUnit:getBrain():onDespawned()
 							
 							sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
 							self.capturedGuard = cellUnit
