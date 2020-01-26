@@ -292,7 +292,18 @@ local function init( modApi )
 		end
 
 		killUnit_old(self, sim, ... )
-	end	
+	end
+
+	--Duct Tape fix for Guards crashing doors into controlled guards (???)
+	local HuntSituation = include("sim/btree/situations/hunt")
+	local updateHuntTarget = HuntSituation.updateHuntTarget
+	HuntSituation.updateHuntTarget = function(self, unit, huntTarget, ...)
+		if huntTarget and unit and unit:isValid() and unit:getBrain() then
+			return updateHuntTarget(self, unit, huntTarget, ...)
+		else
+			self.huntTargets[unit:getID()] = nil
+		end
+	end
 		
 	-- for Mist's KIA algorithm --setAlerted doesn't allow you to set a false value so we'll have to do this instead
 	local simunit_setAlerted_old = simunit.setAlerted
