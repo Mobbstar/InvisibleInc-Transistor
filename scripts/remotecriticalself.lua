@@ -80,7 +80,7 @@ local abilitytransistor =
 			userUnit:getTraits().canBeCritical = true 
 			mortalitychanged = true 
 		end
-		userUnit:onDamage(1)
+		userUnit:onDamage((userUnit:getTraits().woundsMax or 1) - (userUnit:getTraits().wounds or 0))
 		userUnit:useAP(sim)
 		
 		--resetting of canBeCritical - Hek
