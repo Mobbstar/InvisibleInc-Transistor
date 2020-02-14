@@ -210,6 +210,7 @@ return {
 			PSI_CONTROL_TIP = "Hostile actions taken by this unit will cause a drastic alarm increase and break control over the unit.",
 			LOST_CONTROL = "CONTROL LOST",
 			CANNOT_OVERWATCH = "PSI-CONTROLLED UNITS CANNNOT OVERWATCH",
+			NEUTRALIZED_TIP = "Your agents are down, but Transpose() is active! If a human guard pins Mist, you will gain control over him and can salvage this mission. If success seems unlikely, you can use Abort Mission from the menu.",	
 		},
 		
 		-- MIST_KIA = { -- unused
