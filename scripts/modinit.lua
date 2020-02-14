@@ -261,6 +261,24 @@ local function init( modApi )
 		return overwatch_canUseAbility_old( self, sim, unit, ... )
 	end
 	
+	--Mist 3
+	--tweak win/lose conditions so we don't auto-lose if Transpose might still kick in...
+	local simplayer = include("sim/simplayer")
+	local pcplayer = include("sim/pcplayer")
+	local simplayer_isNeutralized_old = simplayer.isNeutralized
+	simplayer.isNeutralized = function( self, sim, ... )
+		local result = simplayer_isNeutralized_old( self, sim, ... )
+		if ThisModLoaded and sim:getNPC():hasMainframeAbility( "transistordaemonmist" )
+		then
+			if result == true then
+				result = false --Transpose may be about to spawn!	
+			end
+		end
+		return result			
+	end
+	pcplayer.isNeutralized = simplayer.isNeutralized --without this line override takes no effect!
+	---
+	
 	--hijacked guards still try to use this function, which causes an assertion error because it's not 'meant' to be used by PC units
 	local simquery_canSoftPath_old = simquery.canSoftPath
 	simquery.canSoftPath = function( sim, unit, startcell, endcell, ... )
@@ -461,6 +479,9 @@ end
 
 local function load(modApi, options, params)
 	local scriptPath = modApi:getScriptPath()
+
+	local escape_mission = include( scriptPath .. "/escape_mission" )
+	modApi:addEscapeScripts(escape_mission)	
 	
 	--Permadeath thing for spawning persistent algorithms of KIA agents. Copypaste from abilitytransistor.lua with some of the comment garbage cut down
 	--note, putting this edit in init does not work for some reason, keep it in Load please
