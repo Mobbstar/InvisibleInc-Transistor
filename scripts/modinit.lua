@@ -268,11 +268,9 @@ local function init( modApi )
 	local simplayer_isNeutralized_old = simplayer.isNeutralized
 	simplayer.isNeutralized = function( self, sim, ... )
 		local result = simplayer_isNeutralized_old( self, sim, ... )
-		if ThisModLoaded and sim:getNPC():hasMainframeAbility( "transistordaemonmist" )
-		then
-			if result == true then
-				result = false --Transpose may be about to spawn!	
-			end
+		log:write(tostring(sim:getNPC():hasMainframeAbility( "transistordaemonmist" )))
+		if result and ThisModLoaded and sim:getNPC():hasMainframeAbility( "transistordaemonmist" ) then
+			result = false --Transpose may be about to spawn!	
 		end
 		return result			
 	end
