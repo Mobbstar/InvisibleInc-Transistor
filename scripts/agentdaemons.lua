@@ -1021,6 +1021,10 @@ return
 								cellUnit:giveAbility("moveBody")
 								cellUnit:getTraits().Transpose_moveBody = true --New Corporate Tactics compatibility
 							end
+							if not cellUnit:hasAbility("escape") then
+								cellUnit:giveAbility("escape") --grants Supreme Elevator Button Pushing ability
+								cellUnit:getTraits().Transpose_escape = true --starting to feel bad about all the clutter in traits...
+							end							
 							
 							sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = cellUnit } )
 							self.capturedGuard = cellUnit
@@ -1128,6 +1132,9 @@ return
 				self.capturedGuard:getTraits().Transpose_old_brain = nil
 				if self.capturedGuard:getTraits().Transpose_moveBody then
 					self.capturedGuard:removeAbility(sim, "moveBody") --remove ability because they don't normally have it
+				end
+				if self.capturedGuard:getTraits().Transpose_escape then
+					self.capturedGuard:removeAbility(sim, "escape")
 				end
 				-- this resets aiming on guards overwatching the hijacked guard, otherwise they stay in overwatch after he's KO until next turn
 				for k, u in pairs(sim:getNPC():getUnits() ) do
