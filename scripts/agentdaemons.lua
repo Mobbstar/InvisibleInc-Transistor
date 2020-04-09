@@ -294,19 +294,99 @@ return
 			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
 		end,
 	},
-	--XU
+	--XU --OLD version
 	-- gain PWR when Shock Trap triggers
+	-- transistordaemonxu = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.XU ) )
+	-- {
+		-- icon = "gui/icons/daemon_icons/fu_mischief.png",
+		-- title = STRINGS.AGENTS.XU.NAME,
+		-- noDaemonReversal = true,
+		
+		-- --everything handled in modinit.lua / init()
+		
+		-- onSpawnAbility = function( self, sim, player, agent )
+			-- sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+		-- end,
+	-- },
+	
+	--XU
+	-- Randomly marked enemy generates EMP pulse next turn
 	transistordaemonxu = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.XU ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_mischief.png",
 		title = STRINGS.AGENTS.XU.NAME,
 		noDaemonReversal = true,
+		range = 3,
+		duration = 2,
+		sound = { path = nil, range = 3, distanceOffset = 0, ignoreSight = true }, --range and sound may need rebalancing
+		markGuard = function(self, sim)
+			local enemies = {}
+			for k,unit in pairs(sim:getNPC():getUnits()) do
+				if unit:isValid() and unit:getLocation()
+				and	unit:getTraits().isAgent --this will limit pool to guards and drones and exclude turrets, cameras, etc.
+				then
+					table.insert(enemies,unit)
+				end
+			end
+			if #enemies > 0 then
+				local markedGuard  = enemies[sim:nextRand(1,#enemies)]
+				markedGuard:getTraits().mischiefMarked = true --trait for special FX
+				self.markedGuard = markedGuard
+			end
+		end,
 		
-		--everything handled in modinit.lua / init()
+		emitEMP = function(self, sim, markedGuard)
+		
+			local x0, y0 = markedGuard:getLocation()
+			if x0 and y0 then --find targets
+				local cells = simquery.rasterCircle( sim, x0, y0, self.range )
+				local targets = {}
+				for i, x, y in util.xypairs( cells ) do
+					local cell = self._sim:getCell( x, y )
+					if cell then
+						for _, cellUnit in ipairs(cell.units) do
+							if (cellUnit ~= self) and (cellUnit:getTraits().mainframe_status or cellUnit:getTraits().heartMonitor) then
+								table.insert( targets, cellUnit )
+							end
+						end
+					end
+				end		
+				--emit EMP pulse
+				sim:dispatchEvent( simdefs.EV_OVERLOAD_VIZ, {x = x0, y = y0, units = targets, range = self.range } )
+
+				for i, unit in ipairs(targets) do
+					unit:processEMP( self.duration, true )
+				end		
+				sim:emitSound( self.sound, x0, y0, nil )					
+				sim:processReactions()
+				markedGuard:getTraits().mischiefMarked = nil
+				sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = markedGuard } )
+				self.markedGuard = nil
+				self.markGuard(self, sim) --mark new unit for next turn
+				local mischief_managed = true
+				
+			end
+		end,
 		
 		onSpawnAbility = function( self, sim, player, agent )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_START_TURN, self )
+			self.markGuard(self, sim)
 		end,
+		
+		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_START_TURN, self )
+			self.markedGuard = nil
+		end,	
+
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			if evType == simdefs.TRG_START_TURN and evData:isPC() then
+				if self.markedGuard then
+					self.emitEMP(self, sim, self.markedGuard)
+				end
+				mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+			end
+		end		
 	},
 	--NIKA
 	-- gain PWR when melee
@@ -722,8 +802,8 @@ return
 			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
 		end,
 	},
-	--DEREK
-	-- +2 AP on turn start if behind cover
+	-- --DEREK NEW!
+	-- -- Agents can teleport-swap once per turn
 	transistordaemonderek = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.DEREK ) )
 	{
 		icon = "gui/icons/daemon_icons/fu_grace.png",
@@ -732,25 +812,59 @@ return
 		
 		onSpawnAbility = function( self, sim, player, agent )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
-			sim:addTrigger( simdefs.TRG_START_TURN, self )
+			sim:addTrigger( simdefs.TRG_UNIT_WARP, self )
+			for i, unit in pairs(sim:getPC():getUnits()) do
+				unit:giveAbility("ability_grace")
+			end
+			
+		end,
+	
+		onTrigger = function( self, sim, evType, evData, userUnit ) --so units spawned after daemon has activated will also have it
+			if evType == simdefs.TRG_UNIT_WARP and not evData.from_cell then
+				if not evData.unit:hasAbility("ability_grace") then
+					evData.unit:giveAbility("ability_grace")
+				end
+			end
 		end,
 		
 		onDespawnAbility = function( self, sim )
-			sim:removeTrigger( simdefs.TRG_START_TURN, self )
-		end,
-		
-		onTrigger = function( self, sim, evType, evData, userUnit )
-			if evType == simdefs.TRG_START_TURN and sim:getCurrentPlayer():isPC() then
-				for i, sourceUnit in pairs(sim:getPC():getUnits()) do
-					if sourceUnit:isValid() and not sourceUnit:isDown() and sourceUnit:canHide()
-					and simquery.checkIfCellNextToCover(sim, sim:getCell(sourceUnit:getLocation()) ) then
-						sourceUnit:addMP( 2 )
-					end
-				end
+			for i, unit in pairs(sim:getPC():getUnits()) do
+				unit:removeAbility(sim, "ability_grace")
 			end
-			mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+			sim:removeTrigger( simdefs.TRG_UNIT_WARP, self )
 		end,
 	},
+
+	
+	-- --DEREK OLD
+	-- -- +2 AP on turn start if behind cover
+	-- transistordaemonderek = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.DEREK ) )
+	-- {
+		-- icon = "gui/icons/daemon_icons/fu_grace.png",
+		-- title = STRINGS.DLC1 and STRINGS.DLC1.AGENTS.DEREK.NAME or "Derek",
+		-- noDaemonReversal = true,
+		
+		-- onSpawnAbility = function( self, sim, player, agent )
+			-- sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			-- sim:addTrigger( simdefs.TRG_START_TURN, self )
+		-- end,
+		
+		-- onDespawnAbility = function( self, sim )
+			-- sim:removeTrigger( simdefs.TRG_START_TURN, self )
+		-- end,
+		
+		-- onTrigger = function( self, sim, evType, evData, userUnit )
+			-- if evType == simdefs.TRG_START_TURN and sim:getCurrentPlayer():isPC() then
+				-- for i, sourceUnit in pairs(sim:getPC():getUnits()) do
+					-- if sourceUnit:isValid() and not sourceUnit:isDown() and sourceUnit:canHide()
+					-- and simquery.checkIfCellNextToCover(sim, sim:getCell(sourceUnit:getLocation()) ) then
+						-- sourceUnit:addMP( 2 )
+					-- end
+				-- end
+			-- end
+			-- mainframe_common.DEFAULT_ABILITY.onTrigger( self, sim, evType, evData, userUnit )
+		-- end,
+	-- },
 	--OLIVIA
 	-- melee on KO guard refreshes attack, kills and bypasses heart monitor
 	transistordaemonolivia = util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.OLIVIA ) )
@@ -1338,22 +1452,33 @@ return
 		
 		onSpawnAbility = function( self, sim, player, agent )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_UNIT_WARP, self )
 			for i, unit in pairs(sim:getPC():getUnits()) do
-				if unit:getUnitData().agentID and (unit:getUnitData().agentID ~= "mod_goose") then
+				if (( unit:getUnitData().agentID == nil ) and not unit:getTraits().isDrone) or ( unit:getUnitData().agentID and (unit:getUnitData().agentID ~= "mod_goose")) then
 					unit:giveAbility("honk_transistor")
 				end
 			end
 			
 		end,
 		
+		onTrigger = function( self, sim, evType, evData, userUnit )
+			if evType == simdefs.TRG_UNIT_WARP and not evData.from_cell then
+				if not evData.unit:hasAbility("honk_transistor") then
+					evData.unit:giveAbility("honk_transistor")
+				end
+			end
+		end,		
+		
 		onDespawnAbility = function( self, sim )
 			for i, unit in pairs(sim:getPC():getUnits()) do
-				if unit:getUnitData().agentID and (unit:getUnitData().agentID ~= "mod_goose") then
+				if not (unit:getUnitData().agentID and (unit:getUnitData().agentID == "mod_goose")) then
 					unit:removeAbility(sim, "honk_transistor")
 				end
 			end
+			sim:removeTrigger( simdefs.TRG_UNIT_WARP, self )
 		end,
 	},	
+	
 	-- Conway from Gunpoint mod
 	-- Bashdoor(): guards who kick down doors KO themselves for 4 turns and generate 4 PWR for the player
 	transistordaemonconway= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.CONWAY ) )
@@ -1368,7 +1493,32 @@ return
 		end,
 		
 	},		
-	
+
+	-- Agent 47 from Agent 47 mod
+	-- Anopsia(): guards won't notice bodies
+	transistordaemonagent_47= util.extend( mainframe_common.createReverseDaemon( STRINGS.TRANSISTOR.AGENTDAEMONS.AGENT_47 ) )
+	{
+		icon = "gui/icons/daemon_icons/fu_anopsia.png",
+		title = STRINGS.AGENT47 and STRINGS.AGENT47.AGENTS.AGENT47.NAME or "Agent 47",
+		noDaemonReversal = true,
+		onTooltip = function( self, hud, sim, player )
+            local tooltip = util.tooltip( hud._screen )
+			local section = tooltip:addSection()
+			section:addLine( self.name )
+			section:addAbility( STRINGS.TRANSISTOR.AGENTDAEMONS.AGENT_47.SUBTITLE, STRINGS.TRANSISTOR.AGENTDAEMONS.AGENT_47.DESC, "gui/icons/action_icons/Action_icon_Small/icon-item_shoot_small.png" )
+			section:addAbility( STRINGS.TRANSISTOR.AGENTDAEMONS.AGENT_47.SUBTITLE2, STRINGS.TRANSISTOR.AGENTDAEMONS.AGENT_47.DESC2, "gui/icons/action_icons/Action_icon_Small/icon-item_shoot_small.png" )
+			if self.dlcFooter then
+				section:addFooter(self.dlcFooter[1],self.dlcFooter[2])
+			end
+
+            return tooltip
+        end,
+		-- handled in modinit / init
+		onSpawnAbility = function( self, sim, player, agent )
+			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+		end,
+		
+	},		
 	---
 	
 	--GENERIC
