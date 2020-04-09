@@ -77,9 +77,9 @@ return {
 		"TRANSISTOR: Transpose() allows you to psijack an enemy guard, mind-controlling them for as long as Mist is down.",
 		"TRANSISTOR: Red's Hurt ability can activate the algorithms at a tactically convenient time. She can even use it on herself!",
 		"TRANSISTOR: 'Agent down' doesn't mean you've failed. Agent algorithms are there to help you claw your way back to victory!",
-		"TRANSISTOR: Attention(), Chase(), Grace() and Abscond() are all handy for that boost of extra AP in a pinch.",
+		"TRANSISTOR: Attention(), Chase() and Abscond() are all handy for that boost of extra AP in a pinch.",
 		"TRANSISTOR: With the Agent Reserve mod, you can keep expanding your team past the 4 agent limit and experiment with their algorithms.",
-		"TRANSISTOR: Coup() and Grace() can be used together for a fast, lethal game-changer when Olivia and Derek are down.",
+		"TRANSISTOR: Coup() and Grace() can be used together for a flexible, lethal game-changer when Olivia and Derek are down.",
 		"TRANSISTOR: You can use Red's Hurt ability on the Prisoner or the Courier to spawn Checksum().",
 		},
 	
@@ -124,10 +124,15 @@ return {
 		},
 		XU = {
 			NAME = "Mischief()",
-			DESC = "Shock Traps triggered by enemies add a charge to all agency items, including nuclear weapons.",
+			-- DESC = "Shock Traps triggered by enemies add a charge to all agency items, including nuclear weapons.",
+			-- -- (this refreshes the flurry gun (="nuclear weapon") too)
+			-- SHORT_DESC = "Shock Traps charge items",
+			-- ACTIVE_DESC = "SHOCK TRAPS CHARGE ITEMS",
+			DESC = "Random enemy is marked and emits noisy EMP pulse next turn (range=3).",
 			-- (this refreshes the flurry gun (="nuclear weapon") too)
-			SHORT_DESC = "Shock Traps charge items",
-			ACTIVE_DESC = "SHOCK TRAPS CHARGE ITEMS",
+			SHORT_DESC = "Random marked enemy emits EMP pulse each turn",
+			ACTIVE_DESC = "ENEMIES EMIT EMP PULSES",	
+			MARKED_UNIT_DESC = "This unit will emit a noisy EMP pulse (range=3) next agent turn.",
 		},
 		NIKA = {
 			NAME = "Punch()",
@@ -185,9 +190,16 @@ return {
 		},
 		DEREK = {
 			NAME = "Grace()",
-			DESC = "Agents behind cover get +2 AP next turn.",
-			SHORT_DESC = "+2 AP per turn if hidden",
-			ACTIVE_DESC = "AGENTS' AP INCREASED BY COVER",
+			-- DESC = "Agents behind cover get +2 AP next turn.",
+			-- SHORT_DESC = "+2 AP per turn if hidden",
+			-- ACTIVE_DESC = "AGENTS' AP INCREASED BY COVER",
+			DESC = "Player-controlled units can instantly swap positions once per turn.",
+			SHORT_DESC = "Units gain swap-teleportation ability",
+			ACTIVE_DESC = "UNITS CAN SWAP-TELEPORT",	
+			ABILITY_GRACE_DESC = "Teleport-swap with this unit",
+			ABILITY_GRACE_TIP ="Swap places with {1}",
+			ABILITY_GRACE_TIP2 ="Swap places with unit",
+			CONFIRM_GRACE = "Are you sure you want to swap these units?",
 		},
 		RED = {
 			NAME = "Crash()",
@@ -260,7 +272,16 @@ return {
 			DESC = "All agents gain Goose's Honk ability.",
 			SHORT_DESC = "Agents can Honk",
 			ACTIVE_DESC = "AGENTS CAN HONK",
-		},		
+		},	
+		AGENT_47 = { -- from Agent 47 mod
+			NAME = "Anopsia()",
+			DESC = "Guards will not see bodies. Includes corpses, drones, and incapacitated agents.",
+			SUBTITLE = "BODIES ARE NOT NOTICED",
+			DESC2 = "Guards that investigate a tile with a body on it will still notice that body!",
+			SUBTITLE2 = "WARNING",
+			SHORT_DESC = "Guards don't notice bodies",
+			ACTIVE_DESC = "GUARDS DON'T NOTICE BODIES",
+		},			
 	},
 	
 	LOGS =
