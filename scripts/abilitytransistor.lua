@@ -41,6 +41,7 @@ local _agentdaemons = {
 	mod_04_n_umi = "numi", --N-UMI
 	mod_goose = "goose", --GOOSE
 	gunpoint_conway = "conway", -- CONWAY
+	agent_47_o = "agent_47", -- AGENT47
 } 
 
 local permadeathSituations = {
