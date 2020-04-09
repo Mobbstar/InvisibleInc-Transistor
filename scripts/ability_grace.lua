@@ -12,7 +12,7 @@ local ability_grace =
 	--ability to kill fellow agents (for the algorithm stuff, go farther down)
 	
 	-- name = STRINGS.TRANSISTOR.AUGMENT_TRANSISTOR,
-	name = STRINGS.TRANSISTOR.ABILITY_REMOTECRITICAL, 
+	name = STRINGS.TRANSISTOR.AGENTDAEMONS.DEREK.NAME, 
 	getName = function( self, sim, unit )
 		return self.name
 	end,
@@ -53,7 +53,7 @@ local ability_grace =
 		local units = {}
 		for _, targetUnit in pairs(sim:getPC():getUnits()) do
 			if self:isTarget( userUnit, targetUnit) then
-				if targetUnit ~= userUnit then --that's a separate, agent-inherit ability, for the sole sake of moving it to the action tray -M
+				if targetUnit ~= userUnit then 
 					table.insert(units, targetUnit)
 				end
 			end
@@ -67,7 +67,7 @@ local ability_grace =
 		end
 		
 		if self.alreadyUsed ~= nil and (self.alreadyUsed == sim:getTurnCount()) then
-			return false, "Already used during this turn"
+			return false, STRINGS.TRANSISTOR.AGENTDAEMONS.DEREK.ALREADY_USED
 		end
 		
 		if targetID then 
