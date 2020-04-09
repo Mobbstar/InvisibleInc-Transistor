@@ -12,7 +12,7 @@ local inventory = include( "sim/inventory" )
 local ThisModLoaded = false
 
 local function earlyInit( modApi )
-	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library", "Gunpoint","Untitled Inc. Goose Protocol"} --PE because it force-overrides some functions we edit
+	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library", "Gunpoint","Untitled Inc. Goose Protocol","Agent 47"} --PE because it force-overrides some functions we edit
 end
 
 local function init( modApi )
@@ -44,6 +44,7 @@ local function init( modApi )
 		end
 	end	
 	
+	include( scriptPath .. "/unitrig" ) --for Xu
 	
 	-- local useItem_old = inventory.useItem
 	-- inventory.useItem = function( sim, unit, item, ... )
@@ -148,42 +149,43 @@ local function init( modApi )
 		local unit = createUnit_old(unitData, ...)
 		if not ThisModLoaded then return unit end
 		if unitData.type == "simtrap" then
-			--Xu
+		
+			--Xu - OLD ALGORITHM
 			-- log:write("SIMTRAP CREATED")
-			local performTrap_old = unit.performTrap
-			unit.performTrap = function( self, sim, cell, unit )
-				if unit and not unit:isPC() then
-					local i = 0
-					for _, ability in ipairs( sim:getNPC():getAbilities() ) do 
-						if ability:getID() == "transistordaemonxu" then
-							i = i + 1
-						end
-					end
-					-- log:write("TRIGGER TRAP ".. tostring(i))
-					if i > 0 then
-						-- sim:dispatchEvent( simdefs.EV_UNIT_FLOAT_TXT, {txt = STRINGS.,x=cell.x,y=cell.y,color={r=255/255,g=255/255,b=51/255,a=1}} )
-						-- sim:getPC():addCPUs( 4 * i, sim, cell.x, cell.y )
-						for j, sourceUnit in pairs(sim:getPC():getUnits()) do
-							if sourceUnit:isValid() then
-								for k, item in pairs(sourceUnit:getChildren()) do
-									if item:isValid() then
-										if item:getTraits().energyWeapon then
-											item:getTraits().energyWeapon = "idle"
-										end
-										if item:getTraits().ammo then
-											item:getTraits().ammo = item:getTraits().ammo + 1
-										end
-										if item:getTraits().charges then
-											item:getTraits().charges = item:getTraits().charges + 1
-										end
-									end
-								end
-							end
-						end
-					end
-				end
-				return performTrap_old( self, sim, cell, unit )
-			end
+			-- local performTrap_old = unit.performTrap
+			-- unit.performTrap = function( self, sim, cell, unit )
+				-- if unit and not unit:isPC() then
+					-- local i = 0
+					-- for _, ability in ipairs( sim:getNPC():getAbilities() ) do 
+						-- if ability:getID() == "transistordaemonxu" then
+							-- i = i + 1
+						-- end
+					-- end
+					-- -- log:write("TRIGGER TRAP ".. tostring(i))
+					-- if i > 0 then
+						-- -- sim:dispatchEvent( simdefs.EV_UNIT_FLOAT_TXT, {txt = STRINGS.,x=cell.x,y=cell.y,color={r=255/255,g=255/255,b=51/255,a=1}} )
+						-- -- sim:getPC():addCPUs( 4 * i, sim, cell.x, cell.y )
+						-- for j, sourceUnit in pairs(sim:getPC():getUnits()) do
+							-- if sourceUnit:isValid() then
+								-- for k, item in pairs(sourceUnit:getChildren()) do
+									-- if item:isValid() then
+										-- if item:getTraits().energyWeapon then
+											-- item:getTraits().energyWeapon = "idle"
+										-- end
+										-- if item:getTraits().ammo then
+											-- item:getTraits().ammo = item:getTraits().ammo + 1
+										-- end
+										-- if item:getTraits().charges then
+											-- item:getTraits().charges = item:getTraits().charges + 1
+										-- end
+									-- end
+								-- end
+							-- end
+						-- end
+					-- end
+				-- end
+				-- return performTrap_old( self, sim, cell, unit )
+			-- end
 			--end of Xu
 		-- elseif unitData.type == "simunit" then
 			--Prism 2
@@ -351,6 +353,35 @@ local function init( modApi )
 		end
 	end
 	--end of Conway
+	
+	-- for Agent47
+	local couldUnitSee_old = simquery.couldUnitSee
+	simquery.couldUnitSee = function( sim, unit, targetUnit, ignoreCover, targetCell, ... )
+		local result = couldUnitSee_old( sim, unit, targetUnit, ignoreCover, targetCell, ... )
+		if ThisModLoaded and sim:getNPC():hasMainframeAbility("transistordaemonagent_47") then
+			if ( unit:getPlayerOwner() == sim:getNPC() ) and targetUnit and (targetUnit:getTraits().iscorpse or targetUnit:isDead() or targetUnit:isKO()) then
+				return false
+			end
+		end
+		return result	
+	end
+	
+	--ACT compatibility: guards will try to drag agents if they stumble blindly on a body, let's make sure they can't
+	-- local moveBody_executeAbility_old = abilitydefs._abilities.moveBody.executeAbility
+	-- abilitydefs._abilities.moveBody.executeAbility = function(self, sim, unit, userUnit, target, ... )
+		-- local targetUnit = sim:getUnit(target)
+		-- if ThisModLoaded and sim:getNPC():hasMainframeAbility("transistordaemonagent_47") then
+			-- if (unit:getPlayerOwner() == sim:getNPC()) and (targetUnit:getPlayerOwner() == sim:getPC()) then
+				-- return
+			-- end
+		-- end
+		
+		-- moveBody_executeAbility_old(self, sim, unit, userUnit, target, ... )
+	
+	-- end
+	-- commented out for now as guards will still become alerted when spotting a body by randomly investigating a tile (as with finding equipment) and there's no reason to do things by halves. If they stumble across the body and become alerted, let them try and drag the body out, after all. Algorithm will still protect from being spotted in the first place
+	
+	-- end of Agent 47	
 	
 	local STRINGS = include("strings")
 	util.tmerge( STRINGS.LOADING_TIPS, STRINGS.TRANSISTOR.LOADING_TIPS  ) --add new loading screen tooltips
@@ -566,6 +597,7 @@ local function load(modApi, options, params)
 		
 		modApi:addAbilityDef( "remotecriticalself", scriptPath .."/remotecriticalself" )
 		modApi:addAbilityDef( "ability_transistor", scriptPath .."/abilitytransistor" )
+		modApi:addAbilityDef( "ability_grace", scriptPath .."/ability_grace" )
 		
 		local Goose_Protocol = mod_manager:findModByName("Untitled Inc. Goose Protocol")
 		if Goose_Protocol then
