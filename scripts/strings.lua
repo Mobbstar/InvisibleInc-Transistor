@@ -200,6 +200,7 @@ return {
 			ABILITY_GRACE_TIP ="Swap places with {1}",
 			ABILITY_GRACE_TIP2 ="Swap places with unit",
 			CONFIRM_GRACE = "Are you sure you want to swap these units?",
+			ALREADY_USED = "Already used this turn",
 		},
 		RED = {
 			NAME = "Crash()",
