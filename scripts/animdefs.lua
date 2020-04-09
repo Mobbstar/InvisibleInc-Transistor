@@ -85,6 +85,17 @@ local animdefs =
 
 	},
 	
+	kanim_mischief_fx =
+	{
+		build = { "data/anims/fx/mischief_fx.abld" },
+		anims = { "data/anims/fx/null_drone_fx.adef" },
+		--symbol = "APMeter",
+		anim = "default",
+		scale = 0.3,
+		layer = Layer.Unit,
+		boundType = BoundType.Character, -- this doesn't really apply to HUD stuff...
+	},	
+	
 }
 
 return animdefs
