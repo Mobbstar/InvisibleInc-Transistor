@@ -1,4 +1,4 @@
 name = Transistor - Red
 author = Hekateras & Mobbstar
-version = 3.11
+version = 3.14
 icon = gui/icons/modicon_transistor.png

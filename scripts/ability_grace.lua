@@ -66,7 +66,7 @@ local ability_grace =
 			return false
 		end
 		
-		if self.alreadyUsed ~= nil and (self.alreadyUsed == sim:getTurnCount()) then
+		if sim.alreadyUsedGrace ~= nil and (sim.alreadyUsedGrace == sim:getTurnCount()) then
 			return false, STRINGS.TRANSISTOR.AGENTDAEMONS.DEREK.ALREADY_USED
 		end
 		
@@ -89,7 +89,7 @@ local ability_grace =
 	executeAbility = function( self, sim, unit, userUnit, target )
 		local targetUnit = sim:getUnit(target)
 		
-		self.alreadyUsed = sim:getTurnCount()
+		sim.alreadyUsedGrace = sim:getTurnCount()
 		
 		local x0, y0 = userUnit:getLocation()
 		local x1, y1 = targetUnit:getLocation()
@@ -123,7 +123,7 @@ local ability_grace =
 	
 	onSpawnAbility = function( self, sim, unit )
 		self.abilityOwner = unit
-		self.alreadyUsed = nil
+		sim.alreadyUsedGrace = nil
 	end,
 	
 	onDespawnAbility = function( self, sim, unit )

@@ -9,7 +9,7 @@ return {
 		ON_KO = "SPAWN FUNCTIONS WHEN KO",
 		ON_KO_TIP = "Enable this to spawn agent functions when those agents get Knocked Out. Additionally, Reds \"Hurt\" ability will only KO the target.\n\nPlease keep in mind that this makes the Transistor significantly more powerful than we originally intended.",
 		PERMADEATH_POOLRAND = "PERMADEATH RANDOMISATION",
-		PERMADEATH_POOLRAND_TIP = "If the Permadeath mod is enabled, enabling this option randomises which persistent Transistor functions spawn from the available pool.",
+		PERMADEATH_POOLRAND_TIP = "If the Permadeath mod is enabled and persistent Transistor functions have been acquired, enabling this option randomises how many of them spawn each mission. (Capped at 4 functions either way)",
 	},
 
 	RED = {
@@ -128,11 +128,11 @@ return {
 			-- -- (this refreshes the flurry gun (="nuclear weapon") too)
 			-- SHORT_DESC = "Shock Traps charge items",
 			-- ACTIVE_DESC = "SHOCK TRAPS CHARGE ITEMS",
-			DESC = "Random enemy is marked and emits noisy EMP pulse next turn (range=3).",
+			DESC = "Random enemy is marked and emits noisy EMP next turn (range=3).",
 			-- (this refreshes the flurry gun (="nuclear weapon") too)
-			SHORT_DESC = "Random marked enemy emits EMP pulse each turn",
+			SHORT_DESC = "Random marked enemy emits EMP each turn",
 			ACTIVE_DESC = "ENEMIES EMIT EMP PULSES",	
-			MARKED_UNIT_DESC = "This unit will emit a noisy EMP pulse (range=3) next agent turn.",
+			MARKED_UNIT_DESC = "This unit will emit a noisy EMP (range=3) next agent turn.",
 		},
 		NIKA = {
 			NAME = "Punch()",

@@ -524,15 +524,9 @@ local function load(modApi, options, params)
 				local agency = sim:getParams().agency
 				if agency.transistorkia and #agency.transistorkia > 0 then
 					local KIApool = agency.transistorkia					
-					local poolsizemax
-					
-					if #KIApool > 4 then
-						poolsizemax = 4
-					else 
-						poolsizemax = #KIApool
-					end
-					
-					local poolsize = sim:nextRand(1,poolsizemax)
+					local poolsizemax = math.min(#KIApool, 4)
+
+					local poolsize = sim:nextRand(1,poolsizemax) --always roll random number for savefile/seed consistency
 					if simdefs.transistor_permadeath_poolrand then 
 						poolsize = poolsizemax
 					end
@@ -565,7 +559,7 @@ local function load(modApi, options, params)
 		end
 	
 	if options.permadeath_poolrand and options.permadeath_poolrand.enabled then
-		rawset(simdefs, "transistor_permadeath_poolrand", false)
+		rawset(simdefs, "transistor_permadeath_poolrand", false) --boolean tango, you never know what means what!
 	else
 		rawset(simdefs, "transistor_permadeath_poolrand", true)
 	end
