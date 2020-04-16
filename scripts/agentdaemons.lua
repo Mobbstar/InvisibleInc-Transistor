@@ -829,7 +829,9 @@ return
 		
 		onDespawnAbility = function( self, sim )
 			for i, unit in pairs(sim:getPC():getUnits()) do
-				unit:removeAbility(sim, "ability_grace")
+				if unit:isValid() and unit:hasAbility("ability_grace") then
+					unit:removeAbility(sim, "ability_grace")
+				end
 			end
 			sim:removeTrigger( simdefs.TRG_UNIT_WARP, self )
 		end,
@@ -1471,7 +1473,7 @@ return
 		
 		onDespawnAbility = function( self, sim )
 			for i, unit in pairs(sim:getPC():getUnits()) do
-				if not (unit:getUnitData().agentID and (unit:getUnitData().agentID == "mod_goose")) then
+				if unit:isValid() and not (unit:getUnitData().agentID and (unit:getUnitData().agentID == "mod_goose")) then
 					unit:removeAbility(sim, "honk_transistor")
 				end
 			end
