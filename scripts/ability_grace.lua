@@ -36,7 +36,7 @@ local ability_grace =
 	canUseWhileDragging = true,
 	-- HUDpriority = 2,
 	-- proxy = true, --on doors
-	usesAction = true, --colour
+	--usesAction = true, --colour
 	-- usesMP = true, --colour
 
 	isTarget = function( self, userUnit, targetUnit )
