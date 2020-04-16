@@ -193,7 +193,7 @@ return {
 			-- DESC = "Agents behind cover get +2 AP next turn.",
 			-- SHORT_DESC = "+2 AP per turn if hidden",
 			-- ACTIVE_DESC = "AGENTS' AP INCREASED BY COVER",
-			DESC = "Player-controlled units can instantly swap positions once per turn.",
+			DESC = "Player-controlled unit can instantly swap position with another once per turn. Uses attack.",
 			SHORT_DESC = "Units gain swap-teleportation ability",
 			ACTIVE_DESC = "UNITS CAN SWAP-TELEPORT",	
 			ABILITY_GRACE_DESC = "Teleport-swap with this unit",
