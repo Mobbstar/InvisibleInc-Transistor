@@ -522,7 +522,7 @@ local function load(modApi, options, params)
 				old_mission_util_makeAgentConnection( script, sim, ... )
 				
 				local agency = sim:getParams().agency
-				if agency.transistorkia and #agency.transistorkia > 0 then
+				if sim.transistor_active and agency.transistorkia and #agency.transistorkia > 0 then
 					local KIApool = agency.transistorkia					
 					local poolsizemax = math.min(#KIApool, 4)
 
