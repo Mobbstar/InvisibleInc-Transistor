@@ -185,6 +185,7 @@ local abilitytransistor =
 	-- algorithm stuff
 	
 	onSpawnAbility = function( self, sim, unit )
+		sim.transistor_active = true
 		self.abilityOwner = unit
 		sim:addTrigger( simdefs.TRG_UNIT_KO, self )
 		
@@ -200,6 +201,7 @@ local abilitytransistor =
 	end,
 	
 	onDespawnAbility = function( self, sim, unit )
+		sim.transistor_active = nil
 		sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
 		sim:removeTrigger( simdefs.TRG_START_TURN, self )
 		sim:removeTrigger( simdefs.TRG_UNIT_RESCUED, self )
