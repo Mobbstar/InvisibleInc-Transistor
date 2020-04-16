@@ -36,7 +36,7 @@ local ability_grace =
 	canUseWhileDragging = true,
 	-- HUDpriority = 2,
 	-- proxy = true, --on doors
-	--usesAction = true, --colour
+	usesAction = true, --colour
 	-- usesMP = true, --colour
 
 	isTarget = function( self, userUnit, targetUnit )
@@ -69,6 +69,10 @@ local ability_grace =
 		if sim.alreadyUsedGrace ~= nil and (sim.alreadyUsedGrace == sim:getTurnCount()) then
 			return false, STRINGS.TRANSISTOR.AGENTDAEMONS.DEREK.ALREADY_USED
 		end
+		
+		if userUnit:getAP() < 1 then
+			return false, STRINGS.UI.REASON.ATTACK_USED
+		end		
 		
 		if targetID then 
 			local targetUnit = sim:getUnit( targetID )
@@ -117,6 +121,7 @@ local ability_grace =
 		sim:dispatchEvent( simdefs.EV_TELEPORT, { units = { targetUnit }, warpOut = false } )
 		sim:dispatchEvent( simdefs.EV_UNIT_REFRESH, { unit = targetUnit } )
 		
+		userUnit:useAP(sim)
 		sim:processReactions()
 		
 	end,
