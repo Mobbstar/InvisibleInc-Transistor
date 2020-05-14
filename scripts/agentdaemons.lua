@@ -1224,7 +1224,7 @@ return
 			if self.capturedGuard and self.capturedGuard:isValid() then  --un-hijack guard!
 				self.capturedGuard:setPlayerOwner( sim:getNPC() )
 				self.capturedGuard:getUnitData().idles = self.idlesOLD
-				self.capturedGuard:getTraits().disguise = false
+				self.capturedGuard:getTraits().disguiseOn = false
 				-- self.capturedGuard:setDisguise(false) --nice visual cue too
 				sim:dispatchEvent( simdefs.EV_CLOAK_OUT, { unit = self.capturedGuard  } ) --swooshy stuff
 				sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/mainframe_gainCPU" )
