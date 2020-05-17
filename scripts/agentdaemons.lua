@@ -1221,7 +1221,7 @@ return
 		end,
 		
 		unPossessGuard = function( self, sim )
-			if self.capturedGuard and self.capturedGuard:isValid() then  --un-hijack guard!
+			if self.capturedGuard and self.capturedGuard:isValid() and self.capturedGuard:getLocation() then  --un-hijack guard!
 				self.capturedGuard:setPlayerOwner( sim:getNPC() )
 				self.capturedGuard:getUnitData().idles = self.idlesOLD
 				self.capturedGuard:getTraits().disguiseOn = false
