@@ -1254,7 +1254,7 @@ return
 				end
 				-- this resets aiming on guards overwatching the hijacked guard, otherwise they stay in overwatch after he's KO until next turn
 				for k, u in pairs(sim:getNPC():getUnits() ) do
-					if u and u:isValid() and sim:canUnitSeeUnit( u, self.capturedGuard ) and u:getBrain() and u:getBrain():getTarget() and u:getTraits().isAiming and not u:getTraits().isDrone and u:getBrain():getTarget() == self.capturedGuard then
+					if u and u:isValid() and u._seenUnits and sim:canUnitSeeUnit( u, self.capturedGuard ) and u:getBrain() and u:getBrain():getTarget() and u:getTraits().isAiming and not u:getTraits().isDrone and u:getBrain():getTarget() == self.capturedGuard then
 						u:resetAllAiming()
 					end
 				end
