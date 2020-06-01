@@ -322,7 +322,17 @@ local function init( modApi )
 			self.huntTargets[unit:getID()] = nil
 		end
 	end
-		
+	
+	-- Hotfix for the weird hard to reproduce issue when a psijacked guard is sprinting for no reason??? idk -Hek
+	local simengine = include("sim/engine")
+	local simengine_moveUnit_old = simengine.moveUnit
+	simengine.moveUnit = function(self, unit, moveTable, ... )
+		if self and ThisModLoaded and unit:getTraits().psiTakenGuard and not unit:getTraits().sneaking then
+			unit:getTraits().sneaking = true --SHRUG
+		end
+		simengine_moveUnit_old(self, unit, moveTable, ... )
+	end
+	
 	-- for Mist's KIA algorithm --setAlerted doesn't allow you to set a false value so we'll have to do this instead
 	local simunit_setAlerted_old = simunit.setAlerted
 	simunit.setAlerted = function( self, alerted, ... )
