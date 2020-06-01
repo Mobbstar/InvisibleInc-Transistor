@@ -153,8 +153,8 @@ local function init( modApi )
 			--Xu - OLD ALGORITHM
 			-- log:write("SIMTRAP CREATED")
 			-- local performTrap_old = unit.performTrap
-			-- unit.performTrap = function( self, sim, cell, unit )
-				-- if unit and not unit:isPC() then
+			-- unit.performTrap = function( self, sim, cell, userUnit )
+				-- if userUnit and not userUnit:isPC() then
 					-- local i = 0
 					-- for _, ability in ipairs( sim:getNPC():getAbilities() ) do 
 						-- if ability:getID() == "transistordaemonxu" then
@@ -207,8 +207,8 @@ local function init( modApi )
 			-- Mist 1
 			-- explicitly grant controlled guards passage
 			local canControl_old = unit.canControl
-			unit.canControl = function( self, unit, ... )
-				return ThisModLoaded and simquery.isAgent(unit) and unit:getTraits().psiTakenGuard or canControl_old(self, unit, ...)
+			unit.canControl = function( self, userUnit, ... )
+				return ThisModLoaded and simquery.isAgent(userUnit) and userUnit:getTraits().psiTakenGuard or canControl_old(self, userUnit, ...)
 			end
 			--end of Mist 1
 		end
