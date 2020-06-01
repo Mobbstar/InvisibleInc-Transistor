@@ -330,7 +330,7 @@ local function init( modApi )
 		if self and ThisModLoaded and unit:getTraits().psiTakenGuard and not unit:getTraits().sneaking then
 			unit:getTraits().sneaking = true --SHRUG
 		end
-		simengine_moveUnit_old(self, unit, moveTable, ... )
+		return simengine_moveUnit_old(self, unit, moveTable, ... )
 	end
 	
 	-- for Mist's KIA algorithm --setAlerted doesn't allow you to set a false value so we'll have to do this instead
