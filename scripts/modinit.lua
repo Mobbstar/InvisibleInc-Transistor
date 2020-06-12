@@ -304,14 +304,17 @@ local function init( modApi )
 	local killUnit_old = simunit.killUnit
 	simunit.killUnit = function( self, sim, ... )
 
-		if self:getTraits().psiTakenGuard and self:getTraits().Transpose_old_brain then
-			self._brain = self:getTraits().Transpose_old_brain --give them their brain back so vanilla killUnit can run properly
-			self:getTraits().Transpose_old_brain = nil
+		if self:getTraits().psiTakenGuard then
+			-- self._brain = self:getTraits().Transpose_old_brain --give them their brain back so vanilla killUnit can run properly
+			-- self:getTraits().Transpose_old_brain = nil
+			local player = sim:getNPC()
+			self:setPlayerOwner( player )			
+			self._brain = simfactory.createBrain(self:getUnitData().brain, sim, self)
+			self:getBrain():onSpawned(sim, self)
 		end
 
-		killUnit_old(self, sim, ... )
+		return killUnit_old(self, sim, ... )
 	end
-
 	--Duct Tape fix for Guards crashing doors into controlled guards (???)
 	local HuntSituation = include("sim/btree/situations/hunt")
 	local updateHuntTarget = HuntSituation.updateHuntTarget
