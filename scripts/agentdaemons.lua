@@ -1129,10 +1129,13 @@ return
 							cellUnit:getTraits().thoughtVis = nil
 							self.old_mainframeRecapture = cellUnit:getTraits().mainframeRecapture
 							cellUnit:getTraits().mainframeRecapture = nil
-							cellUnit:getBrain():setDestination( nil )
-							cellUnit:getTraits().Transpose_old_brain = cellUnit:getBrain() --they won't need their brain while we're in control, and keeping it messes with canSoftPath
-							--cellUnit:getBrain():onDespawned() --nope, this is buggy as hell
+							--brain stuff
+							-- cellUnit:getBrain():setDestination( nil )
+							-- cellUnit:getBrain():setSituation(nil)
+							-- cellUnit:getTraits().Transpose_old_brain = cellUnit:getBrain() --they won't need their brain while we're in control, and keeping it messes with canSoftPath
+							cellUnit:getBrain():onDespawned()
 							cellUnit._brain = nil
+							
 							if not cellUnit:hasAbility("moveBody") then
 								cellUnit:giveAbility("moveBody")
 								cellUnit:getTraits().Transpose_moveBody = true --New Corporate Tactics compatibility
@@ -1222,7 +1225,7 @@ return
 		
 		unPossessGuard = function( self, sim )
 			if self.capturedGuard and self.capturedGuard:isValid() and self.capturedGuard:getLocation() then  --un-hijack guard!
-				self.capturedGuard:setPlayerOwner( sim:getNPC() )
+				--self.capturedGuard:setPlayerOwner( sim:getNPC() ) --do this later
 				self.capturedGuard:getUnitData().idles = self.idlesOLD
 				self.capturedGuard:getTraits().disguiseOn = false
 				-- self.capturedGuard:setDisguise(false) --nice visual cue too
@@ -1244,8 +1247,21 @@ return
 				-- self.capturedGuard:getTraits().LOSperipheralArc = self.oldLOSperiph
 				self.capturedGuard:getModifiers():remove( "psiTakenGuard" )
 				self.capturedGuard:getTraits().mainframeRecapture = self.old_mainframeRecapture
-				self.capturedGuard._brain = self.capturedGuard:getTraits().Transpose_old_brain
-				self.capturedGuard:getTraits().Transpose_old_brain = nil
+		
+				--restore Brain
+				--self.capturedGuard._brain = self.capturedGuard:getTraits().Transpose_old_brain
+				--self.capturedGuard:getTraits().Transpose_old_brain = nil
+				if self.capturedGuard:getPlayerOwner() == sim:getPC() then 
+					local player = sim:getNPC()
+					self.capturedGuard:setPlayerOwner( player )
+					if not self.capturedGuard:getBrain() then
+						self.capturedGuard._brain = simfactory.createBrain(self.capturedGuard:getUnitData().brain, sim, self.capturedGuard)
+						self.capturedGuard:getBrain():onSpawned(sim, self.capturedGuard)
+					end
+					player:returnToIdleSituation(self.capturedGuard)
+				end
+				-- finished resetting brain	
+				
 				if self.capturedGuard:getTraits().Transpose_moveBody then
 					self.capturedGuard:removeAbility(sim, "moveBody") --remove ability because they don't normally have it
 				end
