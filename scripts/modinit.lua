@@ -16,7 +16,7 @@ local function earlyInit( modApi )
 end
 
 local function init( modApi )
-    local dataPath = modApi:getDataPath()
+	local dataPath = modApi:getDataPath()
 	local scriptPath = modApi:getScriptPath()
 	KLEIResourceMgr.MountPackage( dataPath .. "/gui.kwad", "data" )
 	-- KLEIResourceMgr.MountPackage( dataPath .. "/sound.kwad", "data" )
@@ -394,8 +394,8 @@ local function init( modApi )
 	-- end
 	-- commented out for now as guards will still become alerted when spotting a body by randomly investigating a tile (as with finding equipment) and there's no reason to do things by halves. If they stumble across the body and become alerted, let them try and drag the body out, after all. Algorithm will still protect from being spotted in the first place
 	
-	-- end of Agent 47	
-	
+	-- end of Agent 47
+
 	local STRINGS = include("strings")
 	util.tmerge( STRINGS.LOADING_TIPS, STRINGS.TRANSISTOR.LOADING_TIPS  ) --add new loading screen tooltips
 end
@@ -570,6 +570,24 @@ local function load(modApi, options, params)
 				end
 			end
 		end
+		
+	-- MIST: It is possible to try to extract a third agent first and the transpose-essential ones later
+	-- This one has to be in load() because the item evac mod overrides the entire ability each load. (as of 20-2-2, -M)
+	local escape = abilitydefs.lookupAbility("escape")
+	local escape_exec_old = escape.executeAbility
+	escape.executeAbility = function(self, sim, abilityOwner, ...)
+		if ThisModLoaded then
+			local transpose = sim:getNPC():hasMainframeAbility("transistordaemonmist")
+			if transpose and transpose.capturedGuard and transpose.capturedGuard:isValid() and transpose.capturedGuard:getLocation() and transpose.capturedGuard:hasAbility( "escape" ) then
+                local c = sim:getCell( transpose.capturedGuard:getLocation() )
+				if c and c.exitID then
+					transpose:unPossessGuard(sim)
+				end
+			end
+		end
+		return escape_exec_old(self, sim, abilityOwner, ...)
+	end
+
 	
 	if options.permadeath_poolrand and options.permadeath_poolrand.enabled then
 		rawset(simdefs, "transistor_permadeath_poolrand", false) --boolean tango, you never know what means what!
@@ -649,11 +667,11 @@ local function unload()
 end
 
 return {
-    init = init,
-    earlyInit = earlyInit,
-    lateInit = lateInit,
-    load = load,
+	init = init,
+	earlyInit = earlyInit,
+	lateInit = lateInit,
+	load = load,
 	-- lateLoad = lateLoad,
 	unload = unload,
-    initStrings = initStrings,
+	initStrings = initStrings,
 }
