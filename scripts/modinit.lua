@@ -371,10 +371,14 @@ local function init( modApi )
 	local couldUnitSee_old = simquery.couldUnitSee
 	simquery.couldUnitSee = function( sim, unit, targetUnit, ignoreCover, targetCell, ... )
 		local result = couldUnitSee_old( sim, unit, targetUnit, ignoreCover, targetCell, ... )
-		if ThisModLoaded and sim:getNPC():hasMainframeAbility("transistordaemonagent_47") then
-			if ( unit:getPlayerOwner() == sim:getNPC() ) and targetUnit and (targetUnit:getTraits().iscorpse or targetUnit:isDead() or targetUnit:isKO()) then
-				return false
-			end
+		if ThisModLoaded
+		and result -- O(1), We need not hide already hidden things
+		and unit:getPlayerOwner() == sim:getNPC() -- O(1), only hide from the enemy
+		and targetUnit -- O(1), Is there even something to hide?
+		and (targetUnit:getTraits().iscorpse or targetUnit:isDead() or targetUnit:isKO()) -- 3 * O(n(traits)), checking later because of lag
+		and sim:getNPC():hasMainframeAbility("transistordaemonagent_47") -- O(n(daemons)), checking at the end to avoid lag with many daemons active
+		then
+			return false
 		end
 		return result	
 	end
