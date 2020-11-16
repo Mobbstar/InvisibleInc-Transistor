@@ -1534,6 +1534,37 @@ return
 		-- handled in modinit / init
 		onSpawnAbility = function( self, sim, player, agent )
 			sim:dispatchEvent( simdefs.EV_SHOW_REVERSE_DAEMON, { showMainframe=true, name=self.name, icon=self.icon, txt=self.activedesc, title=self.title } )
+			sim:addTrigger( simdefs.TRG_UNIT_KO, self )
+			sim:addTrigger( simdefs.TRG_UNIT_KILLED, self )
+			for i,unit in pairs(sim:getAllUnits()) do
+				if (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) and unit:getTraits().sightable then --only AI player is affected by sightable apparently
+					unit:getTraits().sightable = false 
+					unit:getTraits().transistor_sightable = true
+				end
+			end
+		end,
+		
+		onDespawnAbility = function( self, sim )
+			sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
+			sim:removeTrigger( simdefs.TRG_UNIT_KILLED, self )
+			for i, unit in pairs(sim:getAllUnits()) do
+				if unit:getTraits().transistor_sightable then
+					unit:getTraits().transistor_sightable = nil
+					unit:getTraits().sightable = true
+				end
+			end
+		end,
+		
+		onTrigger = function(self, sim, evType, evData, userUnit)
+			if (evType == simdefs.TRG_UNIT_KO) or (evType == simdefs.TRG_UNIT_KILLED) then
+				if evData.unit and not evData.unit:getTraits().transistor_sightable then
+					local unit = evData.unit
+					if (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) and unit:getTraits().sightable then
+						unit:getTraits().sightable = false
+						unit:getTraits().transistor_sightable = true
+					end
+				end
+			end
 		end,
 		
 	},		
