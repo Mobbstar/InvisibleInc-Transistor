@@ -1537,7 +1537,7 @@ return
 			sim:addTrigger( simdefs.TRG_UNIT_KO, self )
 			sim:addTrigger( simdefs.TRG_UNIT_KILLED, self )
 			for i,unit in pairs(sim:getAllUnits()) do
-				if (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) and unit:getTraits().sightable then --only AI player is affected by sightable apparently
+				if (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) and unit:getTraits().sightable then --only AI player and mission script react to "sightable" or resulting triggers
 					unit:getTraits().sightable = false 
 					unit:getTraits().transistor_sightable = true
 				end
@@ -1557,11 +1557,18 @@ return
 		
 		onTrigger = function(self, sim, evType, evData, userUnit)
 			if (evType == simdefs.TRG_UNIT_KO) or (evType == simdefs.TRG_UNIT_KILLED) then
-				if evData.unit and not evData.unit:getTraits().transistor_sightable then
-					local unit = evData.unit
-					if (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) and unit:getTraits().sightable then
-						unit:getTraits().sightable = false
-						unit:getTraits().transistor_sightable = true
+				local unit = evData.unit
+				if unit then
+					if unit:getTraits().transistor_sightable then
+						if not (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) then
+							unit:getTraits().sightable = true
+							unit:getTraits().transistor_sightable = nil
+						end
+					elseif unit:getTraits().sightable then
+						if (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) then
+							unit:getTraits().sightable = false
+							unit:getTraits().transistor_sightable = true
+						end
 					end
 				end
 			end
