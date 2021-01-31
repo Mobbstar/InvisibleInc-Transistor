@@ -101,13 +101,15 @@ end
 local function generateGhost( sim, unit )
 	local player = sim:getPC()
 	local cell = sim:getCell( unit:getLocation() )
-	local cellghost = getCellGhost( player, cell.x, cell.y )
-	if cellghost then
-		removeUnitGhost( player, nil, sim, unit:getID() )
-		addUnitGhost( player._ghost_units, cellghost, unit )
-	elseif not sim:canPlayerSee( player, cell.x, cell.y ) then
-		cellghost = addCellGhost( player, sim, cell )
-		addUnitGhost( player._ghost_units, cellghost, unit )
+	if cell then
+		local cellghost = getCellGhost( player, cell.x, cell.y )
+		if cellghost then
+			removeUnitGhost( player, nil, sim, unit:getID() )
+			addUnitGhost( player._ghost_units, cellghost, unit )
+		elseif not sim:canPlayerSee( player, cell.x, cell.y ) then
+			cellghost = addCellGhost( player, sim, cell )
+			addUnitGhost( player._ghost_units, cellghost, unit )
+		end
 	end
 end
 -- for DRACO
@@ -156,7 +158,7 @@ return
 			local calcBonus = 0
 			sim:forEachUnit(function(unit)
 				if unit:isAlerted() and unit:isNPC() and not unit:isKO() then
-					calcBonus = calcBonus + 1
+					calcBonus = calcBonus + 0.5--1
 				end
 			end)
 			
@@ -975,7 +977,7 @@ return
 				if #targets > 0 then
 					for i, target in pairs(targets) do				
 						if sim:getCurrentPlayer() == sim:getPC() then
-							if (not target:getTraits().transistorcarmenturn or target:getTraits().transistorcarmenturn < sim:getTurnCount() ) then
+							if target:getTraits().mp and (not target:getTraits().transistorcarmenturn or target:getTraits().transistorcarmenturn < sim:getTurnCount() ) then
 								target:getTraits().transistorcarmenturn = sim:getTurnCount()
 								target:getTraits().mp = target:getTraits().mp + self.APbonus
 								local x1, y1 = target:getLocation()
@@ -995,7 +997,7 @@ return
 			elseif evType == simdefs.TRG_START_TURN then
 				-- log:write("LOG abscond start turn")
 				for i, unit in pairs( sim:getPC():getUnits() ) do
-					if unit:isValid() and unit:getTraits().transistorcarmenbonus then
+					if unit:isValid() and unit:getTraits().transistorcarmenbonus and unit:getTraits().mp then
 						unit:getTraits().mp = unit:getTraits().mp + self.APbonus
 						unit:getTraits().transistorcarmenbonus = nil
 						unit:getTraits().transistorcarmenturn = sim:getTurnCount()
