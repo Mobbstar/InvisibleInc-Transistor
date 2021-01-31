@@ -100,7 +100,7 @@ return {
 		},		
 		DECKER = {
 			NAME = "Chase()",
-			DESC = "Increases all agents' AP by 1 for each guard alerted.",
+			DESC = "Increases all agents' AP by 0.5 for each guard alerted.",
 			SHORT_DESC = "+1 AP per alerted guard",
 			ACTIVE_DESC = "AGENTS' AP INCREASED BY ALERTED GUARDS",
 		},
@@ -131,7 +131,8 @@ return {
 			DESC = "Random enemy is marked and emits noisy EMP next turn (range=3).",
 			-- (this refreshes the flurry gun (="nuclear weapon") too)
 			SHORT_DESC = "Random marked enemy emits EMP each turn",
-			ACTIVE_DESC = "ENEMIES EMIT EMP PULSES",	
+			ACTIVE_DESC = "ENEMIES EMIT EMP PULSES",
+			MARKED_UNIT_NAME = "EMP EMITTER",
 			MARKED_UNIT_DESC = "This unit will emit a noisy EMP (range=3) next agent turn.",
 		},
 		NIKA = {
