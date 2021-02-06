@@ -1558,8 +1558,12 @@ return
 		end,
 		
 		onTrigger = function(self, sim, evType, evData, userUnit)
-			if (evType == simdefs.TRG_UNIT_KO) or (evType == simdefs.TRG_UNIT_KILLED) then
-				local unit = evData.unit
+			local unit = nil
+			if (evType == simdefs.TRG_UNIT_KO) then
+				unit = evData.unit
+			elseif (evType == simdefs.TRG_UNIT_KILLED) then
+				unit = evData.corpse
+			end
 				if unit then
 					if unit:getTraits().transistor_sightable then
 						if not (unit:isKO() or unit:isDead() or unit:getTraits().iscorpse) then
@@ -1573,7 +1577,6 @@ return
 						end
 					end
 				end
-			end
 		end,
 		
 	},		
