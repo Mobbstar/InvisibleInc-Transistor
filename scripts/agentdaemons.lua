@@ -319,7 +319,7 @@ return
 		title = STRINGS.AGENTS.XU.NAME,
 		noDaemonReversal = true,
 		range = 3,
-		duration = 2,
+		EMPduration = 2,
 		sound = { path = nil, range = 3, distanceOffset = 0, ignoreSight = true }, --range and sound may need rebalancing
 		markGuard = function(self, sim)
 			local enemies = {}
@@ -357,7 +357,7 @@ return
 				sim:dispatchEvent( simdefs.EV_OVERLOAD_VIZ, {x = x0, y = y0, units = targets, range = self.range } )
 
 				for i, unit in ipairs(targets) do
-					unit:processEMP( self.duration, true )
+					unit:processEMP( self.EMPduration, true )
 				end		
 				sim:emitSound( self.sound, x0, y0, nil )					
 				sim:processReactions()
