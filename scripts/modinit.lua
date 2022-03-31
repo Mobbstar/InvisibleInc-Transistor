@@ -143,6 +143,30 @@ local function init( modApi )
 		-- end
 	end
 	--end of Shalem
+	
+	-- hijack portrait+name for final words
+	local lastWords = abilitydefs.lookupAbility("lastWords")
+	local lastWords_execute_old = lastWords.executeAbility
+	lastWords.executeAbility = function( self, sim, sourceUnit, ... )
+		local oldanim, oldbuild, oldname
+		if sourceUnit:getUnitData().agentID and (sourceUnit:getUnitData().agentID == "transistor_red") then
+			oldanim, oldbuild, oldname = sourceUnit:getUnitData().profile_anim, sourceUnit:getUnitData().profile_build,
+			sourceUnit:getUnitData().name
+			
+			sourceUnit:getUnitData().profile_build = "portraits/transistor_sword_face"
+			sourceUnit:getUnitData().profile_anim = "portraits/turret_portrait"
+			sourceUnit:getUnitData().name = " UNKNOWN "
+		end
+		
+		lastWords_execute_old( self, sim, sourceUnit, ... )
+		
+		if oldanim and sourceUnit and sourceUnit:getUnitData() then
+			sourceUnit:getUnitData().profile_anim = oldanim
+			sourceUnit:getUnitData().profile_build = oldbuild
+			sourceUnit:getUnitData().name = oldname
+		end
+	end
+	
 	--Apologies if hacking into simfactory makes you die inside. -M
 	local createUnit_old = simfactory.createUnit
 	simfactory.createUnit = function(unitData, ...)
