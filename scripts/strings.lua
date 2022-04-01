@@ -36,7 +36,12 @@ return {
 			},
 			FINAL_WORDS =
 			{
-				"...",	
+				" < Red... Don't be scared... I'll find you. > ",
+				" < Don't look at them, Red. Sing for me. > ",
+				" < I'll see you in the Country... > ",
+				" < Paper boats, here we come... > ",
+				" < It won't hurt that much. I'm here. > ",
+				
 			},
 			--crossbanter is now in a separate file
 		},
@@ -284,6 +289,13 @@ return {
 			SHORT_DESC = "Guards don't notice bodies",
 			ACTIVE_DESC = "GUARDS DON'T NOTICE BODIES",
 		},			
+		
+		SCHYSM = { -- from Schysm mod
+			NAME = "Superposition()",
+			DESC = "Agents can interact with the future self of Observed guards.",
+			SHORT_DESC = "Interact with future guards",
+			ACTIVE_DESC = "INTERACT WITH OBSERVED FUTURE GUARDS",
+		},
 	},
 	
 	LOGS =
