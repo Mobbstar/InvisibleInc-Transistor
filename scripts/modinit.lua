@@ -1,12 +1,6 @@
 local util = include("modules/util")
-local serverdefs = include( "modules/serverdefs" )
 local simdefs = include( "sim/simdefs" )
-local simquery = include( "sim/simquery" )
-local simunit = include( "sim/simunit" )
-local abilitydefs = include( "sim/abilitydefs" ) --use this instead of the direct ability files, as mods may override some
-local simfactory = include( "sim/simfactory" )
-local astar_handlers = include( "sim/astar_handlers" )
-local inventory = include( "sim/inventory" )
+
 --local cutil = include("client/client_util")
 
 local ThisModLoaded = false
@@ -18,6 +12,11 @@ end
 local function init( modApi )
 	local dataPath = modApi:getDataPath()
 	local scriptPath = modApi:getScriptPath()
+	local abilitydefs = include( "sim/abilitydefs" ) --use this instead of the direct ability files, as mods may override some
+	local simquery = include( "sim/simquery" )
+	local simunit = include( "sim/simunit" )
+	local serverdefs = include( "modules/serverdefs" )
+
 	KLEIResourceMgr.MountPackage( dataPath .. "/gui.kwad", "data" )
 	-- KLEIResourceMgr.MountPackage( dataPath .. "/sound.kwad", "data" )
 	KLEIResourceMgr.MountPackage( dataPath .. "/anims.kwad", "data" ) 
@@ -46,6 +45,7 @@ local function init( modApi )
 	
 	include( scriptPath .. "/unitrig" ) --for Xu
 	
+	-- local inventory = include( "sim/inventory" )	
 	-- local useItem_old = inventory.useItem
 	-- inventory.useItem = function( sim, unit, item, ... )
 		-- if not ThisModLoaded then return useItem_old( sim, unit, item, ...) end
@@ -66,6 +66,7 @@ local function init( modApi )
 	-- end
 	
 	--Prism 1
+	-- local astar_handlers = include( "sim/astar_handlers" )
 	-- local aihandler_handleNode_old = astar_handlers.aihandler._handleNode
 	-- astar_handlers.aihandler._handleNode = function(self, to_cell, from_node, goal_cell)
 		-- local n = aihandler_handleNode_old(self, to_cell, from_node, goal_cell)
@@ -168,6 +169,7 @@ local function init( modApi )
 	end
 	
 	--Apologies if hacking into simfactory makes you die inside. -M
+	local simfactory = include( "sim/simfactory" )
 	local createUnit_old = simfactory.createUnit
 	simfactory.createUnit = function(unitData, ...)
 		local unit = createUnit_old(unitData, ...)
@@ -429,6 +431,11 @@ local function init( modApi )
 end
 
 local function lateInit( modApi )
+	local abilitydefs = include( "sim/abilitydefs" ) --use this instead of the direct ability files, as mods may override some
+	local simquery = include( "sim/simquery" )
+	local simunit = include( "sim/simunit" )
+	local serverdefs = include( "modules/serverdefs" )
+	
 	--Central
 	--late init because PE edits this
 	local aiplayer = include( "sim/aiplayer" )
@@ -549,7 +556,11 @@ end
 
 local function load(modApi, options, params)
 	local scriptPath = modApi:getScriptPath()
-
+	local abilitydefs = include( "sim/abilitydefs" ) --use this instead of the direct ability files, as mods may override some
+	local simquery = include( "sim/simquery" )
+	local simunit = include( "sim/simunit" )
+	local serverdefs = include( "modules/serverdefs" )
+	
 	local escape_mission = include( scriptPath .. "/escape_mission" )
 	modApi:addEscapeScripts(escape_mission)	
 	
