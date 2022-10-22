@@ -78,7 +78,7 @@ local abilitytransistor =
 	
 	-- profile_icon = "gui/items/icon-action_peek.png",
 	-- profile_icon = "gui/icons/item_icons/items_icon_small/icon-item_shocktrap_small.png",
-	profile_icon = "gui/icons/item_icons/items_icon_small/icon-item_heart_monitor_small.png",
+	profile_icon = "gui/icons/action_icons/Action_icon_Small/icon-item_shoot_small.png",
 
 	alwaysShow = true,
 	canUseWhileDragging = true,
@@ -187,7 +187,8 @@ local abilitytransistor =
 	onSpawnAbility = function( self, sim, unit )
 		sim.transistor_active = true
 		self.abilityOwner = unit
-		sim:addTrigger( simdefs.TRG_UNIT_KO, self )
+		
+		self.abilityOwner:giveAbility( "abilitytransistorRevive" ) -- because ''addAbilities'' in itemdef does not support more than one ability! :) despite the plural phrasing
 		
 		if sim:getPC() and sim:getPC():getUnits() then
 			self:recalcPossibleDaemons( sim )
@@ -195,6 +196,7 @@ local abilitytransistor =
 			sim:addTrigger( simdefs.TRG_START_TURN, self )
 		end
 		
+		sim:addTrigger( simdefs.TRG_UNIT_KO, self )		
 		sim:addTrigger( simdefs.TRG_UNIT_RESCUED, self )
 		sim:addTrigger( simdefs.TRG_UNIT_ESCAPED, self )
 		sim:addTrigger( simdefs.TRG_UNIT_KILLED, self ) -- PERMADEATH. not needed unless we decide to add a custom event for her... -Hek
