@@ -662,6 +662,7 @@ local function load(modApi, options, params)
 		modApi:addAbilityDef( "remotecriticalself", scriptPath .."/remotecriticalself" )
 		modApi:addAbilityDef( "ability_transistor", scriptPath .."/abilitytransistor" )
 		modApi:addAbilityDef( "ability_grace", scriptPath .."/ability_grace" )
+		modApi:addAbilityDef( "abilitytransistorRevive", scriptPath .."/abilitytransistorRevive" )
 		
 		local Goose_Protocol = mod_manager:findModByName("Untitled Inc. Goose Protocol")
 		if Goose_Protocol then
