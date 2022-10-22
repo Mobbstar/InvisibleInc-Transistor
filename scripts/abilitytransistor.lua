@@ -204,11 +204,12 @@ local abilitytransistor =
 	
 	onDespawnAbility = function( self, sim, unit )
 		sim.transistor_active = nil
+		self.abilityOwner:removeAbility(sim, "abilitytransistorRevive")
 		sim:removeTrigger( simdefs.TRG_UNIT_KO, self )
 		sim:removeTrigger( simdefs.TRG_START_TURN, self )
 		sim:removeTrigger( simdefs.TRG_UNIT_RESCUED, self )
 		sim:removeTrigger( simdefs.TRG_UNIT_ESCAPED, self )
-		-- sim:removeTrigger( simdefs.TRG_UNIT_KILLED, self ) -- PERMADEATH
+		sim:removeTrigger( simdefs.TRG_UNIT_KILLED, self ) -- PERMADEATH
 		self.abilityOwner = nil
 		self._possibleDaemons = nil
 		--if red leaves, remove all Transistor effects

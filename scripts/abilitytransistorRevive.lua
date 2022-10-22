@@ -10,9 +10,9 @@ local serverdefs = include( "modules/serverdefs" )
 local abilitytransistorRevive =
 {
 	--ability to kill fellow agents (for the algorithm stuff, go farther down)
-	
+
 	-- name = STRINGS.TRANSISTOR.AUGMENT_TRANSISTOR,
-	name = STRINGS.TRANSISTOR.ABILITY_REMOTEHEAL, 
+	name = STRINGS.TRANSISTOR.ABILITY_REMOTEHEAL,
 	getName = function( self, sim, unit )
 		return self.name
 	end,
@@ -27,7 +27,7 @@ local abilitytransistorRevive =
 			return abilityutil.formatToolTip(STRINGS.TRANSISTOR.ABILITY_REMOTEHEAL, desc)
 		end
 	end,
-	
+
 	profile_icon = "gui/icons/item_icons/items_icon_small/icon-item_heart_monitor_small.png",
 
 	alwaysShow = true,
@@ -35,15 +35,15 @@ local abilitytransistorRevive =
 	usesAction = true, --colour
 
 	isTarget = function( self, userUnit, targetUnit )
-		
+
 		if targetUnit and targetUnit:isValid()
 		and not targetUnit:isGhost() and targetUnit:isPC()
-		and not targetUnit:getTraits().isDrone 
+		and not targetUnit:getTraits().isDrone
 		and not targetUnit:getTraits().isGuard --psiTakenGuard
-		and targetUnit:isDead() and targetUnit:getTraits().transistorKO then 
+		and targetUnit:isDead() and targetUnit:getTraits().transistorKO then
 			return true
-		end 
-		
+		end
+
 		return false
 	end,
 
@@ -63,23 +63,23 @@ local abilitytransistorRevive =
 		if unit:getAP() < 1 then
 			return false, STRINGS.UI.REASON.ATTACK_USED
 		end
-		
-		if targetID then 
+
+		if targetID then
 			local targetUnit = sim:getUnit( targetID )
 			if not self:isTarget( userUnit, targetUnit ) then
 				return false, STRINGS.UI.REASON.INVALID_TARGET
 			end
 		end
 
-		return true 
-	end, 
+		return true
+	end,
 
 	confirmAbility = function( self, sim, ownerUnit, userUnit )
 		return STRINGS.TRANSISTOR.CONFIRM_REMOTEHEAL
 	end,
 
 	executeAbility = function( self, sim, unit, userUnit, target )
-		local targetUnit = sim:getUnit(target)	
+		local targetUnit = sim:getUnit(target)
 		targetUnit:getTraits().transistorKO = nil
 		assert( targetUnit:getWounds() >= targetUnit:getTraits().woundsMax ) -- Cause they're dead, should have more wounds than max
 		targetUnit:getTraits().dead = nil
@@ -89,7 +89,9 @@ local abilitytransistorRevive =
 		sim:dispatchEvent( simdefs.EV_GAIN_AP, { unit = targetUnit } )
 
 		targetUnit:setKO( sim, nil )
-		targetUnit:getTraits().mp = math.max( 0, targetUnit:getMPMax() - (targetUnit:getTraits().overloadCount or 0) )		
+		targetUnit:getTraits().mp = math.max( 0, targetUnit:getMPMax() - (targetUnit:getTraits().overloadCount or 0) )
+
+		unit:useAP(sim)
 	end,
 }
 
