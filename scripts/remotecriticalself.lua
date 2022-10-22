@@ -25,7 +25,7 @@ local abilitytransistor =
 	
 	-- profile_icon = "gui/items/icon-action_peek.png",
 	-- profile_icon = "gui/icons/item_icons/items_icon_small/icon-item_shocktrap_small.png",
-	profile_icon = "gui/icons/item_icons/items_icon_small/icon-item_heart_monitor_small.png",
+	profile_icon = "gui/icons/action_icons/Action_icon_Small/icon-item_shoot_small.png",
 
 	alwaysShow = true,
 	canUseWhileDragging = true,
