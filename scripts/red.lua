@@ -58,5 +58,5 @@ return
 	sounds = FEMALE_SOUNDS,
 	speech = STRINGS.TRANSISTOR.RED.BANTER,
 	blurb = STRINGS.TRANSISTOR.RED.BIO,
-	upgrades = { "augment_transistor", "item_tazer", "item_adrenaline" },
+	upgrades = { "augment_transistor", "item_tazer",},
 }
