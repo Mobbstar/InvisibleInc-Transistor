@@ -48,8 +48,8 @@ return {
 	},	
 	
 	AUGMENT_TRANSISTOR = "Transistor",
-	AUGMENT_TRANSISTOR_TIP = "Unique algorithms activate while agents are dying. Can put agents into critical condition remotely.",
-	AUGMENT_TRANSISTOR_TIP_KO = "Unique algorithms activate while agents are KO or dying. Can KO agents remotely.",
+	AUGMENT_TRANSISTOR_TIP = "Unique algorithms activate while agents are dying. Can put agents into critical condition remotely as well as bring them out of it. This consumes an attack.",
+	AUGMENT_TRANSISTOR_TIP_KO = "Unique algorithms activate while agents are KO or dying. Can KO agents remotely and subsequently revive them. This consumes an attack.",
 	AUGMENT_TRANSISTOR_FLAVOR = "Neural trace data can be used to generate powerful functions based on the subjects' identities. These functions fall apart once the subjects regain higher consciousness.",
 	
 	ABILITY_REMOTECRITICAL = "Hurt",
@@ -57,8 +57,13 @@ return {
 	ABILITY_REMOTECRITICAL_DESC = "Inflict a critical, not quite lethal wound.",
 	ABILITY_REMOTECRITICAL_DESC_KO = "Apply overwhelming pain, causing a temporary Knock-Out.",
 	
+	ABILITY_REMOTEHEAL = "Revive",
+	ABILITY_REMOTEHEAL_TIP = "Revive {1}",
+	ABILITY_REMOTEHEAL_DESC = "Revive agent that was incapacitated by Hurt.",
+	
 	CONFIRM_REMOTECRITICAL = "Are you sure you want to hurt this agent?",
 	CONFIRM_REMOTECRITICAL_LASTAGENT = "This is your last active agent. Are you sure you want to hurt them?",
+	CONFIRM_REMOTEHEAL = "Are you sure you want to revive this agent?",
 	
 	BADCELL = "Bad Cell",
 	TOOLTIP_BADCELL_EXPLO = "VOLATILE",
