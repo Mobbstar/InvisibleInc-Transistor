@@ -69,6 +69,10 @@ local abilitytransistorRevive =
 			if not self:isTarget( userUnit, targetUnit ) then
 				return false, STRINGS.UI.REASON.INVALID_TARGET
 			end
+
+			if simquery.isUnitPinned(sim, targetUnit) then
+				return false, STRINGS.TRANSISTOR.ABILITY_REMOTEHEAL_PINNED
+			end
 		end
 
 		return true
@@ -87,11 +91,10 @@ local abilitytransistorRevive =
 		local x1, y1 = targetUnit:getLocation()
 		sim:dispatchEvent( simdefs.EV_UNIT_FLOAT_TXT, {txt=STRINGS.UI.FLY_TXT.REVIVED,x=x1,y=y1,color={r=1,g=1,b=1,a=1}} )
 		sim:dispatchEvent( simdefs.EV_GAIN_AP, { unit = targetUnit } )
+		unit:useAP(sim)
 
 		targetUnit:setKO( sim, nil )
 		targetUnit:getTraits().mp = math.max( 0, targetUnit:getMPMax() - (targetUnit:getTraits().overloadCount or 0) )
-
-		unit:useAP(sim)
 	end,
 }
 
