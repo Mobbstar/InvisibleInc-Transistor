@@ -59,7 +59,8 @@ return {
 	
 	ABILITY_REMOTEHEAL = "Revive",
 	ABILITY_REMOTEHEAL_TIP = "Revive {1}",
-	ABILITY_REMOTEHEAL_DESC = "Revive agent who was incapacitated by Hurt.",
+	ABILITY_REMOTEHEAL_DESC = "Revive agent that was incapacitated by Hurt.",
+	ABILITY_REMOTEHEAL_PINNED = "AGENT PINNED",
 	
 	CONFIRM_REMOTECRITICAL = "Are you sure you want to hurt this agent?",
 	CONFIRM_REMOTECRITICAL_LASTAGENT = "This is your last active agent. Are you sure you want to hurt them?",
