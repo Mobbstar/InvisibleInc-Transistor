@@ -94,7 +94,7 @@ local abilitytransistorRevive =
 		unit:useAP(sim)
 
 		targetUnit:setKO( sim, nil )
-		targetUnit:getTraits().mp = math.max( 0, targetUnit:getMPMax() - (targetUnit:getTraits().overloadCount or 0) )
+		targetUnit:getTraits().mp = math.max( 0, targetUnit:getMPMax() - (targetUnit:getTraits().overloadCount or 0) - (targetUnit:getTraits().mpUsed or 0) )
 	end,
 }
 
