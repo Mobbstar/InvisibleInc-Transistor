@@ -7,6 +7,10 @@ local ThisModLoaded = false
 
 local function earlyInit( modApi )
 	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library", "Gunpoint","Untitled Inc. Goose Protocol","Agent 47"} --PE because it force-overrides some functions we edit
+	--TODO install transistor algorithm API for other mods
+	local scriptPath = modApi:getScriptPath()
+	local transistorapi = include( scriptPath .. "/transistorapi" )
+	transistorapi.init(modApi)
 end
 
 local function init( modApi )

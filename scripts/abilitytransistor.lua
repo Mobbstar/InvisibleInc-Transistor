@@ -191,7 +191,7 @@ local abilitytransistor =
 		self.abilityOwner:giveAbility( "abilitytransistorRevive" ) -- because ''addAbilities'' in itemdef does not support more than one ability! :) despite the plural phrasing
 		
 		if sim:getPC() and sim:getPC():getUnits() then
-			self:recalcPossibleDaemons( sim )
+			self:recalcAgentDefs( sim )
 		else
 			sim:addTrigger( simdefs.TRG_START_TURN, self )
 		end
@@ -224,7 +224,7 @@ local abilitytransistor =
 		
 		if evType == simdefs.TRG_START_TURN then
 			if sim:getPC() and sim:getPC():getUnits() then
-				self:recalcPossibleDaemons( sim )
+				self:recalcAgentDefs( sim )
 				if not self.secondturn then
 					self.secondturn = true --hack to kinda fix final mission tooltip, as Story Agents spawn after init
 				else
@@ -280,7 +280,7 @@ local abilitytransistor =
 			
 		elseif evType == simdefs.TRG_UNIT_RESCUED
 		or evType == simdefs.TRG_UNIT_ESCAPED then
-			self:recalcPossibleDaemons( sim )
+			self:recalcAgentDefs( sim )
 			
 			if evType == simdefs.TRG_UNIT_ESCAPED and evData
 			and self.downedagent and self.downedagents[evData] then
@@ -354,18 +354,14 @@ local abilitytransistor =
 	end,
 	
 	--this is a hack for client
-	_possibleDaemons = {},
-	recalcPossibleDaemons = function(self, sim)
-		self._possibleDaemons = {}
+	currentAgentDefs = {},
+	recalcAgentDefs = function(self, sim)
+		self.currentAgentDefs = {}
 		for i, unit in pairs(sim:getPC():getUnits()) do
-			local abilityID = _agentdaemons[unit:getUnitData().agentID or 0]
-			if abilityID and not self._possibleDaemons[abilityID] then
-				self._possibleDaemons[abilityID] = unit
+			if unit:isAgent() then
+				table.insert(self.currentAgentDefs, unit:getUnitData())
 			end
 		end
-	end,
-	getPossibleDaemons = function(self)
-		return self._possibleDaemons or {}
 	end,
 }
 
