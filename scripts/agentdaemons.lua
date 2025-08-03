@@ -1602,6 +1602,12 @@ return
 		onDespawnAbility = function( self, sim )
 			sim:removeTrigger( simdefs.TRG_START_TURN, self )
 			sim:removeTrigger( simdefs.TRG_END_TURN, self )
+			if self.badcell then
+				sim:dispatchEvent( simdefs.EV_TELEPORT, { units={self.badcell}, warpOut=true } )
+				sim:warpUnit( self.badcell )
+				sim:despawnUnit( self.badcell )
+				self.badcell = nil
+			end
 		end,
 		
 		onTrigger = function( self, sim, evType, evData, userUnit )
