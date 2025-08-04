@@ -2,6 +2,7 @@ local util = include( "modules/util" )
 local simdefs = include( "sim/simdefs" )
 local unitdefs = include("sim/unitdefs")
 local commondefs = include( "sim/unitdefs/commondefs" )
+local abilitydefs = include("sim/abilitydefs")
 
 local tryGetAgentIdsFromState
 do -- TODO extract this to a separate file
@@ -68,16 +69,16 @@ local tool_templates =
 				end
 			else
 				--TODO in state-team-preview, the entire onTooltip only runs once, but we want it to re-run whenever selected loadout changes
-				local agentDefs = tryGetAgentDefsFromState()
+				agentDefs = tryGetAgentDefsFromState()
 	        end
 			local showGeneric = false
 			for i = 1, #agentDefs do
-				local transistorDef = unitdefs:getTransistorForAgentId(agentDefs[i].agentID)
+				local transistorDef = abilitydefs:lookupTransistorForAgentId(agentDefs[i].agentID)
 				if transistorDef then
 					tooltip:addAbility(
 						agentDefs[i].name,
-						transistorDef.description,
-						"gui/icons/arrow_small.png" --TODO maybe use agent icon instead of arrow_small?
+						transistorDef.desc,
+						agentDefs[i].profile_icon_64x64
 					)
 				else
 					showGeneric = true
