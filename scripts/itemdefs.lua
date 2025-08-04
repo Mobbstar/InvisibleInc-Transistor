@@ -1,7 +1,44 @@
 local util = include( "modules/util" )
 local simdefs = include( "sim/simdefs" )
+local unitdefs = include("sim/unitdefs")
 local commondefs = include( "sim/unitdefs/commondefs" )
--- local simdefs = include( "sim/simdefs" )
+local abilitydefs = include("sim/abilitydefs")
+
+local tryGetAgentIdsFromState
+do -- TODO extract this to a separate file
+	local unitdefs = include("sim/unitdefs")
+	local serverdefs = include("modules/serverdefs")
+
+	local function findAgentTemplateName(idx) -- inverse of findAgentIdx @ state-team-preview:54
+		return serverdefs.SELECTABLE_AGENTS[idx]
+	end
+
+	tryGetAgentDefsFromState = function()
+		local states = statemgr.getStates()
+		local agentDefs = {}
+		for i = #states, 1, -1 do --the most recent state is at the top of the "stack" (which is not guaranteed to pop like a stack, but for our purposes it's a duck)
+			if states[i]._selectedAgents then -- state-team-preview
+				for j = 1, #states[i]._selectedAgents do
+					local templateName = findAgentTemplateName(states[i]._selectedAgents[j])
+					local agentDef = unitdefs.lookupTemplate(templateName)
+					if agentDef then
+						table.insert(agentDefs, agentDef)
+					end
+				end
+				return agentDefs
+			elseif states[i]._agency and states[i]._agency.unitDefs then -- state-upgrade-screen, or a goose pretending to be it
+				for j = 1, #states[i]._agency.unitDefs do
+					local templateName = states[i]._agency.unitDefs[j].template
+					local agentDef = unitdefs.lookupTemplate(templateName)
+					if agentDef then
+						table.insert(agentDefs, agentDef)
+					end
+				end
+				return agentDefs
+			end
+		end
+	end
+end
 
 local _item_ontooltip = commondefs.item_template.onTooltip
 
@@ -23,26 +60,37 @@ local tool_templates =
 			local footer = tooltip._children[#tooltip._children]
 			tooltip._children[#tooltip._children] = nil
 			--add descriptions of all the currently possible daemons
+			local agentDefs = {}
 			local owner = userUnit or unit
 			if owner and owner.isValid and owner:isValid() then
 				local ability_transistor = owner:ownsAbility("ability_transistor")
 				if ability_transistor then
-					for abilityID, otherUnit in pairs(ability_transistor:getPossibleDaemons()) do
-						-- log:write("displaying Transistor ability for "..abilityID)
-						tooltip:addAbility(
-							otherUnit:getName(),
-							STRINGS.TRANSISTOR.AGENTDAEMONS[string.upper(abilityID)].DESC,
-							--TODO maybe use agent icon instead of arrow_small?
-							"gui/icons/arrow_small.png"
-						)
-					end
-					tooltip:addAbility(
-						STRINGS.TRANSISTOR.AGENTDAEMONS.GENERIC.UNITNAME,
-						STRINGS.TRANSISTOR.AGENTDAEMONS.GENERIC.DESC,
-						"gui/icons/arrow_small.png"
-					)
+					agentDefs = ability_transistor.currentAgentDefs
 				end
+			else
+				--TODO in state-team-preview, the entire onTooltip only runs once, but we want it to re-run whenever selected loadout changes
+				agentDefs = tryGetAgentDefsFromState()
 	        end
+			local showGeneric = false
+			for i = 1, #agentDefs do
+				local transistorDef = abilitydefs:lookupTransistorForAgentId(agentDefs[i].agentID)
+				if transistorDef then
+					tooltip:addAbility(
+						agentDefs[i].name,
+						transistorDef.desc,
+						agentDefs[i].profile_icon_64x64
+					)
+				else
+					showGeneric = true
+				end
+			end
+			if showGeneric then
+				tooltip:addAbility(
+					STRINGS.TRANSISTOR.AGENTDAEMONS.GENERIC.UNITNAME,
+					STRINGS.TRANSISTOR.AGENTDAEMONS.GENERIC.DESC,
+					"gui/icons/arrow_small.png"
+				)
+			end
 			table.insert(tooltip._children, footer)
 		end,
 	},
