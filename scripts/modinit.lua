@@ -7,6 +7,9 @@ local ThisModLoaded = false
 
 local function earlyInit( modApi )
 	modApi.requirements = {"Sim Constructor", "Contingency Plan", "Programs Extended", "Permadeath", "Function Library", "Gunpoint","Untitled Inc. Goose Protocol","Agent 47"} --PE because it force-overrides some functions we edit
+
+	local scriptPath = modApi:getScriptPath()
+	local transistorapi = include( scriptPath .. "/transistorapi" )
 end
 
 local function init( modApi )
@@ -28,13 +31,21 @@ local function init( modApi )
 	-- modApi:addGenerationOption("transistor_wireframe",  STRINGS.TRANSISTOR.OPTIONS.WIREFRAME, STRINGS.TRANSISTOR.OPTIONS.WIREFRAME_TIP, {noUpdate = true} )
 	modApi:addGenerationOption("transistor_on_ko",  STRINGS.TRANSISTOR.OPTIONS.ON_KO , STRINGS.TRANSISTOR.OPTIONS.ON_KO_TIP, {enabled = false, noUpdate = true} )
 	modApi:addGenerationOption("permadeath_poolrand",  STRINGS.TRANSISTOR.OPTIONS.PERMADEATH_POOLRAND , STRINGS.TRANSISTOR.OPTIONS.PERMADEATH_POOLRAND_TIP, {enabled = false, noUpdate = true} )
-	
+
 	-- adding datalogs
 	local logs = include( scriptPath .. "/logs" )
 	for i,log in ipairs(logs) do      
 		modApi:addLog(log)
 	end
-	
+
+	local transistordefs = include(scriptPath .. "/transistordefs")
+	for i = 1, #transistordefs do
+		local def = transistordefs[i]
+		for j = 1, #def.agents do
+			modApi:addTransistorDef(def.agents[j], def.ability, def.abilityPermadeath)
+		end
+	end
+
 	function mod_manager:findModByName( name ) --for mod dependencies and such
 		for i, modData in ipairs(self.mods) do
 			if name and mod_manager:getModName( modData.id ) == name then

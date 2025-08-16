@@ -6,52 +6,16 @@ local simdefs = include("sim/simdefs")
 local simquery = include("sim/simquery")
 local abilityutil = include( "sim/abilities/abilityutil" )
 local serverdefs = include( "modules/serverdefs" )
-
---Note: (ARCHIVE) agents get specific IDs if SAA is installed
-local _agentdaemons = {
-	[1] = "decker", --DECKER
-	[230] = "decker", --DECKER (ARCHIVE)
-	[2] = "shalem", --SHALEM
-	[232] = "shalem", --SHALEM (ARCHIVE)
-	[3] = "xu", --XU
-	[234] = "xu", --XU (ARCHIVE)
-	[4] = "banks", --BANKS
-	[233] = "banks", --BANKS (ARCHIVE)
-	[5] = "maria", --MARIA
-	[231] = "maria", --MARIA (ARCHIVE)
-	[6] = "nika", --NIKA
-	[235] = "nika", --NIKA (ARCHIVE)
-	[7] = "sharp", --SHARP
-	[236] = "sharp", --SHARP (ARCHIVE)
-	[8] = "prism", --PRISM
-	[237] = "prism", --PRISM (ARCHIVE)
-	[99] = "monster", --MONSTER (STORY)
-	[100] = "monster", --MONSTER
-	[107] = "central", --CENTRAL (STORY)
-	[108] = "central", --CENTRAL
-	[1000] = "olivia", --OLIVIA
-	[1001] = "derek", --DEREK
-	[1002] = "rush", --RUSH
-	[1003] = "draco", --DRACO
-	transistor_red = "red", --RED
-	carmen_sandiego_o  = "carmen", --CARMEN
-	mod_01_pedler = "pedler", --PEDLER
-	mod_02_mist = "mist", --MIST
-	mod_03_ghuff = "ghuff", --GHUFF
-	mod_04_n_umi = "numi", --N-UMI
-	mod_goose = "goose", --GOOSE
-	gunpoint_conway = "conway", -- CONWAY
-	agent_47_o = "agent_47", -- AGENT47
-} 
+local abilitydefs = include("sim/abilitydefs")
 
 local permadeathSituations = {
 	["mid_1"] = true, ["mid_2"] = true, ["ending_1"] = true,
 }
 
 local function removeAlgorithm(self, sim, unit)
-	abilityID = _agentdaemons[unit:getUnitData().agentID or 0] or "generic"
+	abilityID = abilitydefs:getBestTransistorId(unit:getUnitData().agentID)
 	--disable the daemon again (fails if none of this type are left)
-	sim:getNPC():removeAbility( sim, "transistordaemon".. abilityID )
+	sim:getNPC():removeAbility(sim, abilityID)
 	self.downedagents[unit] = nil
 end
 
@@ -191,7 +155,7 @@ local abilitytransistor =
 		self.abilityOwner:giveAbility( "abilitytransistorRevive" ) -- because ''addAbilities'' in itemdef does not support more than one ability! :) despite the plural phrasing
 		
 		if sim:getPC() and sim:getPC():getUnits() then
-			self:recalcPossibleDaemons( sim )
+			self:recalcAgentDefs( sim )
 		else
 			sim:addTrigger( simdefs.TRG_START_TURN, self )
 		end
@@ -224,7 +188,7 @@ local abilitytransistor =
 		
 		if evType == simdefs.TRG_START_TURN then
 			if sim:getPC() and sim:getPC():getUnits() then
-				self:recalcPossibleDaemons( sim )
+				self:recalcAgentDefs( sim )
 				if not self.secondturn then
 					self.secondturn = true --hack to kinda fix final mission tooltip, as Story Agents spawn after init
 				else
@@ -280,7 +244,7 @@ local abilitytransistor =
 			
 		elseif evType == simdefs.TRG_UNIT_RESCUED
 		or evType == simdefs.TRG_UNIT_ESCAPED then
-			self:recalcPossibleDaemons( sim )
+			self:recalcAgentDefs( sim )
 			
 			if evType == simdefs.TRG_UNIT_ESCAPED and evData
 			and self.downedagent and self.downedagents[evData] then
@@ -307,8 +271,8 @@ local abilitytransistor =
 					local x0, y0 = evData.unit:getLocation()
 					sim:dispatchEvent( simdefs.EV_SCANRING_VIS, { x= x0,y= y0, range=3 } )
 					--install daemon
-					local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0] or "generic"
-					sim:getNPC():addMainframeAbility(sim, "transistordaemon".. abilityID, evData.unit, 0 )
+					local abilityID = abilitydefs:getBestTransistorId(evData.unit:getUnitData().agentID)
+					sim:getNPC():addMainframeAbility(sim, abilityID, evData.unit, 0)
 					self.downedagents[evData.unit] = true
 					
 				end
@@ -323,25 +287,19 @@ local abilitytransistor =
 					sim.transistordeath = {}
 				end
 					
-				local abilityID = _agentdaemons[evData.unit:getUnitData().agentID or 0] or "generickia"
-					if abilityID == "generic" then
-						abilityID = "generickia"
-					elseif abilityID == "mist" then
-						abilityID = "mistkia"
-					end
-				local agentdaemon = ("transistordaemon".. abilityID)	
-				table.insert(sim.transistordeath, agentdaemon)
-				-- log:write(util.stringize(agentdaemon,2))
+				local abilityID = abilitydefs:getBestPermadeathTransistorId(evData.unit:getUnitData().agentID)
+				table.insert(sim.transistordeath, abilityID)
+				-- log:write(util.stringize(abilityID,2))
 				log:write(util.stringize(sim.transistordeath,2))
 				-- special FX
 				evData.corpse._sim:dispatchEvent( simdefs.EV_PLAY_SOUND, "SpySociety/Actions/transferData" )				
 				local x0, y0 = evData.corpse:getLocation()
 				sim:dispatchEvent( simdefs.EV_OVERLOAD_VIZ, {x = x0, y = y0, units = nil, range = 7 } )
 				
-				-- if agentdaemon == "transistordaemonred" then --to make death as severe as the user apparently desires: if this is reached in the first place, do not install algorithms just yet. -M
+				-- if abilityID == "transistordaemonred" then --to make death as severe as the user apparently desires: if this is reached in the first place, do not install algorithms just yet. -M
 				if evData.unit == self.abilityOwner then --the only exception is Red, because her death means there won't be algorithms in any mission afterwards.
 					self:onDespawnAbility(self, sim, self.abilityOwner)
-					sim:getNPC():addMainframeAbility(sim, agentdaemon, nil, 0 )
+					sim:getNPC():addMainframeAbility(sim, abilityID, nil, 0 )
 				else
 					-- despawns active algorithm if the agent bled out
 					self.downedagents = self.downedagents or {} --this might be a bit redundant
@@ -354,18 +312,14 @@ local abilitytransistor =
 	end,
 	
 	--this is a hack for client
-	_possibleDaemons = {},
-	recalcPossibleDaemons = function(self, sim)
-		self._possibleDaemons = {}
+	currentAgentDefs = {},
+	recalcAgentDefs = function(self, sim)
+		self.currentAgentDefs = {}
 		for i, unit in pairs(sim:getPC():getUnits()) do
-			local abilityID = _agentdaemons[unit:getUnitData().agentID or 0]
-			if abilityID and not self._possibleDaemons[abilityID] then
-				self._possibleDaemons[abilityID] = unit
+			if unit.getTraits and unit:getTraits().isAgent then
+				table.insert(self.currentAgentDefs, unit:getUnitData())
 			end
 		end
-	end,
-	getPossibleDaemons = function(self)
-		return self._possibleDaemons or {}
 	end,
 }
 
