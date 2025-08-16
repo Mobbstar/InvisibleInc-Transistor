@@ -1,5 +1,5 @@
 name = Transistor - Red
 author = Hekateras & Mobbstar
-version = 3.25
+version = 3.26
 icon = gui/icons/modicon_transistor.png
 workshop = 1597324803

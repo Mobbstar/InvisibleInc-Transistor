@@ -1694,8 +1694,8 @@ return
 						sim:dispatchEvent( simdefs.EV_CAM_PAN, { spawncell.x, spawncell.y } ) --sorry, the absence of this has been bugging me for months -Hek
 						sim:dispatchEvent( simdefs.EV_TELEPORT, { units={self.badcell}, warpOut=false } )
 					end
-					end
 				end
+			end
 			if evType == simdefs.TRG_END_TURN and evData:isPC() and self.badcell and self.badcell:isValid() then
 				local grenadeUnit = simfactory.createUnit( unitdefs.lookupTemplate( "transistor_badcell_grenade" ), sim )
 				sim:spawnUnit( grenadeUnit )
