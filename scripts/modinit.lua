@@ -1,7 +1,4 @@
 local util = include("modules/util")
-local simdefs = include( "sim/simdefs" )
-
---local cutil = include("client/client_util")
 
 local ThisModLoaded = false
 
@@ -18,6 +15,7 @@ local function init( modApi )
 	local abilitydefs = include( "sim/abilitydefs" ) --use this instead of the direct ability files, as mods may override some
 	local simquery = include( "sim/simquery" )
 	local simunit = include( "sim/simunit" )
+	local simdefs = include( "sim/simdefs" )
 	local serverdefs = include( "modules/serverdefs" )
 
 	KLEIResourceMgr.MountPackage( dataPath .. "/gui.kwad", "data" )
@@ -445,6 +443,7 @@ local function lateInit( modApi )
 	local abilitydefs = include( "sim/abilitydefs" ) --use this instead of the direct ability files, as mods may override some
 	local simquery = include( "sim/simquery" )
 	local simunit = include( "sim/simunit" )
+	local simdefs = include( "sim/simdefs" )
 	local serverdefs = include( "modules/serverdefs" )
 	
 	--Central
@@ -570,6 +569,7 @@ local function load(modApi, options, params)
 	local abilitydefs = include( "sim/abilitydefs" ) --use this instead of the direct ability files, as mods may override some
 	local simquery = include( "sim/simquery" )
 	local simunit = include( "sim/simunit" )
+	local simdefs = include( "sim/simdefs" )
 	local serverdefs = include( "modules/serverdefs" )
 	
 	local escape_mission = include( scriptPath .. "/escape_mission" )
