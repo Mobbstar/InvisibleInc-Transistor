@@ -71,6 +71,9 @@ local tool_templates =
 				--TODO in state-team-preview, the entire onTooltip only runs once, but we want it to re-run whenever selected loadout changes
 				agentDefs = tryGetAgentDefsFromState()
 	        end
+			if not agentDefs then -- failsafe for less important UI pop-ups such as "Agency Loadout Updated"
+				agentDefs = {}
+			end
 			local showGeneric = false
 			for i = 1, #agentDefs do
 				local transistorDef = abilitydefs:lookupTransistorForAgentId(agentDefs[i].agentID)
