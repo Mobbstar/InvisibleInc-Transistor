@@ -713,6 +713,7 @@ end
 
 local function unload()
 	ThisModLoaded = false
+	local simdefs = include("sim/simdefs")
 	rawset(simdefs, "transistor_permadeath_poolrand", nil)
 	rawset(simdefs, "transistor_on_ko", nil)
 end
